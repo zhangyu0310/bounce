@@ -30,3 +30,15 @@
 *.exe
 *.out
 *.app
+*.css
+*.html
+*.png
+*.gif
+*.user
+*.vcxproj
+*.sln
+*.ipch
+*.opendb
+*.db
+.vs/bounce/v15/.suo
+*.cd

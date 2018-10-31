@@ -14,24 +14,26 @@
 #define BOUNCE_POLLER_H
 
 #include <chrono>
+#include <list>
 #include <map>
-
-#include <bounce/channel.h>
-#include <bounce/event_loop.h>
 
 namespace bounce {
 
+class Channel;
+class EventLoop;
+
 class Poller {
 public:
-	Poller();
-	virtual ~Poller();
+	typedef std::list<Channel*> ChannelList;
+	Poller(EventLoop* loop) : loop_(loop) {}
+	//virtual ~Poller();
 
-	virtual std::time_t poll() = 0;
-	virtual void updateChannel() = 0;
-	virtual void removeChannel() = 0;
+	virtual std::time_t poll(int timeout, ChannelList* active_channels) = 0;
+	virtual void updateChannel(Channel* channel) = 0;
+	virtual void removeChannel(Channel* channel) = 0;
 
 protected:
-	typedef std::map<int, Channel> ChannelMap;
+	typedef std::map<int, Channel*> ChannelMap;
 	ChannelMap channels_;
 
 private:

@@ -11,9 +11,30 @@
 
 #include <bounce/event_loop.h>
 
+#include <bounce/channel.h>
+#include <bounce/poll_poller.h>
+
+bounce::EventLoop::EventLoop() :
+	looping_(false),
+	stop_(false),
+	poller_(new PollPoller(this))
+{}
+
 void bounce::EventLoop::loop() {
 	looping_ = true;
 	while (!stop_) {
-		poller_->poll();
+		active_channels_.clear();
+		// TODO: timeout can be set.
+		time_t recv_time = poller_->poll(-1, &active_channels_);
+		for (auto it = active_channels_.begin();
+			it != active_channels_.end(); ++it) {
+			cur_channel_ = *it;
+			cur_channel_->handleChannel(recv_time);
+		}
+		cur_channel_ = NULL;
 	}
+}
+
+void bounce::EventLoop::updateChannel(Channel* channel) {
+	poller_->updateChannel(channel);
 }

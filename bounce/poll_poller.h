@@ -12,12 +12,29 @@
 #ifndef BOUNCE_POLLPOLLER_H
 #define BOUNCE_POLLPOLLER_H
 
+#include <poll.h>
+
+#include <list>
+#include <vector>
+
 #include <bounce/poller.h>
 
 namespace bounce {
 
-class PollPoller : public Poller {
+class Channel;
+class EventLoop;
 
+class PollPoller : public Poller {
+public:
+	PollPoller(EventLoop* loop) : Poller(loop) {}
+	//~PollPoller();
+
+	std::time_t poll(int timeout, ChannelList* active_channels);
+	void updateChannel(Channel* channel);
+	void removeChannel(Channel* channel);
+
+private:
+	std::vector<struct pollfd> pollfds_;
 };
 
 } // namespace bounce

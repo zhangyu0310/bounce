@@ -13,30 +13,37 @@
 #ifndef BOUNCE_EVENTLOOP_H
 #define BOUNCE_EVENTLOOP_H
 
+#include <chrono>
+#include <list>
 #include <memory>
 
-#include <bounce/poller.h>
+//#include <bounce/channel.h>
+//#include <bounce/poller.h>
 
 namespace bounce {
 
+class Poller;
+class Channel;
+
 class EventLoop {
 public:
-	EventLoop() :
-		looping_(false),
-		stop_(false)
-	{}
-	~EventLoop();
+	EventLoop();
+	//~EventLoop();
 	EventLoop(const EventLoop&) = delete;
 	EventLoop& operator=(const EventLoop&) = delete;
 
 	void loop();
-	//void updateChannel();
-	//void removeChannel();
+	void updateChannel(Channel* channel);
+	//void removeChannel(Channel* channel);
 
 private:
 	bool looping_;
 	bool stop_;
 	std::unique_ptr<Poller> poller_;
+
+	typedef std::list<Channel*> ChannelList;
+	ChannelList active_channels_;
+	Channel* cur_channel_;
 };
 
 } // namespace bounce

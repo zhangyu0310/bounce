@@ -27,7 +27,9 @@ public:
 	    fd_(fd),
 		loop_(loop) 
 	{}
-	//~Channel();
+	~Channel() {}
+	Channel(const Channel&) = delete;
+	Channel& operator=(const Channel&) = delete;
 
 	void handleChannel(time_t recv_time);
 	int fd() const { return fd_; }

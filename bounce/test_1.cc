@@ -32,7 +32,6 @@ int main() {
 	Channel listen_channel(&loop, listen_fd);
 	listen_channel.setEvents(POLLIN | POLLPRI);
 	listen_channel.setReadCallback(read_cb);
-	PollPoller poll(&loop);
 	loop.updateChannel(&listen_channel);
 	loop.loop();
 }

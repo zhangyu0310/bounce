@@ -26,7 +26,9 @@ class Poller {
 public:
 	typedef std::list<Channel*> ChannelList;
 	Poller(EventLoop* loop) : loop_(loop) {}
-	//virtual ~Poller();
+	virtual ~Poller() {}
+	Poller(const Poller&) = delete;
+	Poller& operator=(const Poller&) = delete;
 
 	virtual std::time_t poll(int timeout, ChannelList* active_channels) = 0;
 	virtual void updateChannel(Channel* channel) = 0;

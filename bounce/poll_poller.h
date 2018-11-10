@@ -27,7 +27,7 @@ class EventLoop;
 class PollPoller : public Poller {
 public:
 	PollPoller(EventLoop* loop) : Poller(loop) {}
-	//~PollPoller();
+	~PollPoller() {}
 
 	std::time_t poll(int timeout, ChannelList* active_channels);
 	void updateChannel(Channel* channel);

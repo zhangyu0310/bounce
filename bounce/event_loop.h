@@ -28,7 +28,7 @@ class Channel;
 class EventLoop {
 public:
 	EventLoop();
-	//~EventLoop();
+	~EventLoop() {}
 	EventLoop(const EventLoop&) = delete;
 	EventLoop& operator=(const EventLoop&) = delete;
 

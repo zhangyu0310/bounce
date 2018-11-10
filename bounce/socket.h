@@ -24,6 +24,8 @@ class Socket {
 public:
 	Socket(int fd) : fd_(fd) {}
 	~Socket() { ::close(fd_); }
+	Socket(const Socket&) = delete;
+	Socket& operator=(const Socket&) = delete;
 
 	void bind(SockAddress& addr); // FIXME: bindOrDie();
 	void listen(); // FIXME: listenOrDie();

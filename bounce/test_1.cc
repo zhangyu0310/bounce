@@ -30,7 +30,8 @@ int main() {
 	listen_sock.listen();
 	EventLoop loop;
 	Channel listen_channel(&loop, listen_fd);
-	listen_channel.setEvents(POLLIN | POLLPRI);
+	//listen_channel.setEvents(POLLIN | POLLPRI);
+	listen_channel.enableReading();
 	listen_channel.setReadCallback(read_cb);
 	loop.updateChannel(&listen_channel);
 	loop.loop();

@@ -9,8 +9,13 @@
 */
 
 #include <bounce/channel.h>
+#include <bounce/event_loop.h>
 
 #include <poll.h>
+
+const int bounce::Channel::kNoneEvent = 0;
+const int bounce::Channel::kReadEvent = POLLIN | POLLPRI;
+const int bounce::Channel::kWriteEvent = POLLOUT;
 
 void bounce::Channel::handleChannel(time_t recv_time) {
 	// fd is closed and nothing to read.
@@ -28,4 +33,8 @@ void bounce::Channel::handleChannel(time_t recv_time) {
 	if (revents_ & POLLOUT) {
 		if (write_cb_) write_cb_();
 	}
+}
+
+void bounce::Channel::update() {
+	loop_->updateChannel(this);
 }

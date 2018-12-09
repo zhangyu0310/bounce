@@ -35,14 +35,29 @@ public:
 	int fd() const { return fd_; }
 	short int events() const { return events_; }
 	short int revents() const { return revents_; }
-	void setEvents(short int events) { events_ = events; }
+	bool isNoneEvent() const { return events_ == kNoneEvent; }
+	//void setEvents(short int events) { events_ = events; }
 	void setRevents(short int revents) { revents_ = revents; }
 	void setReadCallback(ReadEventCallback cb) { read_cb_ = cb; }
 	void setWriteCallback(EventCallback cb) { write_cb_ = cb; }
 	void setCloseCallback(EventCallback cb) { close_cb_ = cb; }
 	void setErrorCallback(EventCallback cb) { error_cb_ = cb; }
 
+	void enableReading() { events_ |= kReadEvent; update(); }
+	void disableReading() { events_ &= ~kReadEvent; update(); }
+	void enableWriting() { events_ |= kWriteEvent; update(); }
+	void disableWriting() { events_ &= ~kWriteEvent; update(); }
+	void disableAll() { events_ = kNoneEvent; update(); }
+	bool isWriting() const { return events_ & kWriteEvent; }
+	bool isReading() const { return events_ & kReadEvent; }
+
 private:
+	static const int kNoneEvent;
+	static const int kReadEvent;
+	static const int kWriteEvent;
+
+	void update();
+
 	const int fd_;
 	short int events_;
 	short int revents_;

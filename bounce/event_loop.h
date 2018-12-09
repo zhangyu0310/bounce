@@ -17,12 +17,10 @@
 #include <list>
 #include <memory>
 
-//#include <bounce/channel.h>
-//#include <bounce/poller.h>
+#include <bounce/poller.h>
 
 namespace bounce {
 
-class Poller;
 class Channel;
 
 class EventLoop {

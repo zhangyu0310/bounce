@@ -29,8 +29,8 @@ void bounce::Socket::listen() {
 }
 
 int bounce::Socket::accept(SockAddress* addr) {
-	socklen_t len;
+	socklen_t len = addr->size();
 	int fd = ::accept4(fd_, addr->inetAddr(), &len, SOCK_NONBLOCK);
-	// FIXME: If accept error.
+	// FIXME: If accept error, fd < 0.
 	return fd;
 }

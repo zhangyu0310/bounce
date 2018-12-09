@@ -22,6 +22,7 @@ namespace bounce {
 // only IPv4. TODO: support IPv6
 class SockAddress {
 public:
+	SockAddress() {} // Only for Acceptor
 	SockAddress(const std::string& ip, uint16_t port);
 	~SockAddress() {}
 

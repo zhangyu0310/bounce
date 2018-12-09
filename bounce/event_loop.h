@@ -14,8 +14,12 @@
 #define BOUNCE_EVENTLOOP_H
 
 #include <chrono>
+#include <functional>
 #include <list>
 #include <memory>
+#include <mutex>
+#include <thread>
+#include <vector>
 
 #include <bounce/poller.h>
 
@@ -24,6 +28,7 @@ namespace bounce {
 class Channel;
 
 class EventLoop {
+	typedef std::function<void()> Functor;
 public:
 	EventLoop();
 	~EventLoop() {}
@@ -34,14 +39,27 @@ public:
 	void updateChannel(Channel* channel);
 	//void removeChannel(Channel* channel);
 
+	// TODO: add move version (&&)
+	void doTaskInThread(Functor& func);
+	void queueTaskInThread(Functor& func);
+
+	void doTaskInThread(Functor&& func);
+	void queueTaskInThread(Functor&& func);
+
 private:
+	void doTheTasks();
+
 	bool looping_;
 	bool stop_;
+	std::thread::id thread_id_;
 	std::unique_ptr<Poller> poller_;
 
 	typedef std::list<Channel*> ChannelList;
 	ChannelList active_channels_;
 	Channel* cur_channel_;
+
+	std::mutex mutex_;
+	std::vector<Functor> task_vec_;
 };
 
 } // namespace bounce

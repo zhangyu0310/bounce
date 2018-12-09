@@ -32,9 +32,54 @@ void bounce::EventLoop::loop() {
 			cur_channel_->handleChannel(recv_time);
 		}
 		cur_channel_ = NULL;
+		doTheTasks();
 	}
 }
 
 void bounce::EventLoop::updateChannel(Channel* channel) {
 	poller_->updateChannel(channel);
 }
+
+void bounce::EventLoop::doTheTasks() {
+	std::vector<Functor> tmp_vec;
+	{
+		std::lock_guard<std::mutex> guard(mutex_);
+		task_vec_.swap(tmp_vec);
+	}
+	for (auto task : tmp_vec) {
+		task();
+	}
+}
+
+void bounce::EventLoop::doTaskInThread(bounce::EventLoop::Functor& func) {
+	if(thread_id_ == std::this_thread::get_id()) {
+		func();
+	} else {
+		queueTaskInThread(func);
+	}
+}
+
+void bounce::EventLoop::queueTaskInThread(Functor& func) {
+	{
+		std::lock_guard<std::mutex> guard(mutex_);
+		task_vec_.push_back(func);
+	}
+	//TODO: wake up thread
+}
+
+void bounce::EventLoop::doTaskInThread(bounce::EventLoop::Functor&& func) {
+	if(thread_id_ == std::this_thread::get_id()) {
+		func();
+	} else {
+		queueTaskInThread(std::move(func));
+	}
+}
+
+void bounce::EventLoop::queueTaskInThread(Functor&& func) {
+	{
+		std::lock_guard<std::mutex> guard(mutex_);
+		task_vec_.push_back(std::move(func));
+	}
+	//TODO: wake up thread
+}
+

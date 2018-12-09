@@ -18,6 +18,7 @@
 #include <bounce/acceptor.h>
 #include <bounce/sockaddr.h>
 #include <bounce/tcp_connection.h>
+#include <bounce/loop_threadpool.h>
 
 namespace bounce {
 
@@ -30,13 +31,16 @@ class TcpServer {
 	typedef std::function<void(const TcpConnectionPtr&)> WriteCompleteCallback;
 	typedef std::function<void(const TcpConnectionPtr&, Buffer*, time_t)> MessageCallback;
 public:
-	TcpServer(EventLoop* loop, const std::string& ip, uint16_t port);
+	TcpServer(EventLoop* loop, const std::string& ip, uint16_t port, uint32_t thread_num = 0);
 	//~TcpServer();
 	void start();
+	void setThreadNumber(uint32_t num) { thread_pool_->addThreadNumber(num); }
 	void setConnectionCallback(const ConnectionCallback& cb) { connect_cb_ = cb; }
 	void setMessageCallback(const MessageCallback& cb) { message_cb_ = cb; }
-	void setWriteCallback(const WriteCompleteCallback& cb) { write_cb_ = cb; }
+	void setWriteCompleteCallback(const WriteCompleteCallback& cb) { write_cb_ = cb; }
 	void setCloseCallback(const CloseCallback& cb) { close_cb_ = cb; }
+
+	uint32_t getThreadNumber() { return thread_pool_->getThreadNumber(); }
 	
 private:
 	void newConnection(int fd, const SockAddress& addr);
@@ -47,6 +51,8 @@ private:
 	MessageCallback message_cb_;
 	WriteCompleteCallback write_cb_;
 	CloseCallback close_cb_;
+
+	std::unique_ptr<LoopThreadPool> thread_pool_;
 	std::map<int, TcpConnectionPtr> connection_map_;
 };
 

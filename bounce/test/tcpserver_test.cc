@@ -32,7 +32,13 @@ void conn_cb(const std::shared_ptr<TcpConnection>& conn) {
 
 void read_cb(const std::shared_ptr<TcpConnection>& conn, Buffer* buffer, time_t time) {
 	std::cout << "Get Message at " << time << std::endl;
-	std::cout << buffer->readAllAsString() << std::endl;
+	std::string message = buffer->readAllAsString();
+	std::cout << message << std::endl;
+	conn->send(message);
+}
+
+void write_cb(const std::shared_ptr<TcpConnection>& conn) {
+	std::cout << "Write back finish..." << std::endl;
 }
 
 int main() {
@@ -40,6 +46,7 @@ int main() {
 	TcpServer server(&loop, "127.0.0.1", 9281);
 	server.setConnectionCallback(conn_cb);
 	server.setMessageCallback(read_cb);
+	server.setWriteCompleteCallback(write_cb);
 	server.start();
 	loop.loop();
 }

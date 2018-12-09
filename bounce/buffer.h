@@ -27,9 +27,11 @@ public:
 		write_index_(0) 
 	{}
 
-	// Peek
 	size_t readableBytes() { return write_index_ - read_index_; }
 	size_t writeableBytes() { return buffer_.size() - write_index_; }
+
+	// Peek
+	const char* peek() { return buffer_.data() + read_index_; }
 	int8_t peekInt8();
 	int16_t peekInt16();
 	int32_t peekInt32();
@@ -51,6 +53,15 @@ public:
 		return readAsString(readableBytes());
 	}
 	std::string readAsString(size_t size);
+	// used by send message.
+	void retrieve(size_t len) {
+		if (len < readableBytes()) {
+			read_index_ += len;
+		} else {
+			// retrieve all, the buffer can be reset.
+			read_index_ = write_index_ = 0;
+		}
+	}
 	int8_t readInt8();
 	int16_t readInt16();
 	int32_t readInt32();

@@ -57,6 +57,7 @@ private:
 	void handleClose();
 	void handleError();
 
+	// FIXME: State of connection.
 	EventLoop* loop_;
 	std::unique_ptr<Socket> socket_;
 	std::unique_ptr<Channel> channel_;
@@ -67,6 +68,7 @@ private:
 	WriteCompleteCallback write_cb_;
 	CloseCallback close_cb_;
 	// error_cb_;
+	//FIXME: add context. Type: std::any
 	// std::any context_;
 };
 

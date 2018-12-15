@@ -32,7 +32,7 @@ class TcpServer {
 	typedef std::function<void(const TcpConnectionPtr&, Buffer*, time_t)> MessageCallback;
 public:
 	TcpServer(EventLoop* loop, const std::string& ip, uint16_t port, uint32_t thread_num = 0);
-	//~TcpServer();
+	~TcpServer() = default;
 	void start();
 	void setThreadNumber(uint32_t num) { thread_pool_->addThreadNumber(num); }
 	void setConnectionCallback(const ConnectionCallback& cb) { connect_cb_ = cb; }

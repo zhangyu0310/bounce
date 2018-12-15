@@ -28,13 +28,18 @@ void bounce::TcpServer::start() {
 }
 
 void bounce::TcpServer::newConnection(int fd, const SockAddress& addr) {
-	// FIXME: loop is a thread pool. Not only main loop.
+	// loop is a thread pool. Not only main loop.
+    // If there is no thread in threadpool. Use main loop.
 	EventLoop* conn_loop = nullptr;
 	if (thread_pool_->getThreadNumber() == 0) {
 		conn_loop = loop_;
 	} else {
-		// If there is no thread in threadpool. Use main loop.
 		conn_loop = thread_pool_->getLoopForNewConnection();
+	}
+	if (conn_loop == nullptr) {
+	    // FIXME: error!
+	    console->error("Can't get a connection loop.");
+	    conn_loop = loop_;
 	}
 	std::shared_ptr<TcpConnection> conn(new TcpConnection(conn_loop, fd));
 	conn->setConnectCallback(connect_cb_);
@@ -43,5 +48,5 @@ void bounce::TcpServer::newConnection(int fd, const SockAddress& addr) {
 	conn->setCloseCallback(close_cb_);
 	// TODO: setErrorCallback()
 	connection_map_.insert(std::make_pair(fd, conn));
-	conn->connectComplete();
+	conn_loop->doTaskInThread(std::bind(&TcpConnection::connectComplete, conn));
 }

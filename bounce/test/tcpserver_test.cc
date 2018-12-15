@@ -15,12 +15,7 @@
 #include <vector>
 
 #include <bounce/buffer.h>
-#include <bounce/channel.h>
 #include <bounce/event_loop.h>
-#include <bounce/poller.h>
-#include <bounce/poll_poller.h>
-#include <bounce/sockaddr.h>
-#include <bounce/socket.h>
 #include <bounce/tcp_connection.h>
 #include <bounce/tcp_server.h>
 
@@ -28,6 +23,8 @@ using namespace bounce;
 
 void conn_cb(const std::shared_ptr<TcpConnection>& conn) {
 	std::cout << "New Connnection..." << std::endl;
+	std::cout << "This thread_id is ";
+	std::cout << std::this_thread::get_id() << std::endl;
 }
 
 void read_cb(const std::shared_ptr<TcpConnection>& conn, Buffer* buffer, time_t time) {
@@ -35,6 +32,8 @@ void read_cb(const std::shared_ptr<TcpConnection>& conn, Buffer* buffer, time_t 
 	std::string message = buffer->readAllAsString();
 	std::cout << message << std::endl;
 	conn->send(message);
+    std::cout << "This thread_id is ";
+    std::cout << std::this_thread::get_id() << std::endl;
 }
 
 void write_cb(const std::shared_ptr<TcpConnection>& conn) {
@@ -43,7 +42,7 @@ void write_cb(const std::shared_ptr<TcpConnection>& conn) {
 
 int main() {
 	EventLoop loop;
-	TcpServer server(&loop, "127.0.0.1", 9281);
+	TcpServer server(&loop, "127.0.0.1", 9281, 3);
 	server.setConnectionCallback(conn_cb);
 	server.setMessageCallback(read_cb);
 	server.setWriteCompleteCallback(write_cb);

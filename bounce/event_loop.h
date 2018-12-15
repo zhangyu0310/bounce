@@ -21,6 +21,8 @@
 #include <thread>
 #include <vector>
 
+#include <bounce/channel.h>
+#include <bounce/logger.h>
 #include <bounce/poller.h>
 
 namespace bounce {
@@ -31,7 +33,7 @@ class EventLoop {
 	typedef std::function<void()> Functor;
 public:
 	EventLoop();
-	~EventLoop() {}
+	~EventLoop() = default;
 	EventLoop(const EventLoop&) = delete;
 	EventLoop& operator=(const EventLoop&) = delete;
 
@@ -48,6 +50,7 @@ public:
 
 private:
 	void doTheTasks();
+	void weakupCallback(time_t);
 
 	bool looping_;
 	bool stop_;
@@ -60,6 +63,7 @@ private:
 
 	std::mutex mutex_;
 	std::vector<Functor> task_vec_;
+	Channel weak_up_channel_;
 };
 
 } // namespace bounce

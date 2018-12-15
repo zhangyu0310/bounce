@@ -31,7 +31,7 @@ void bounce::LoopThreadPool::start() {
         if (thread_cb_ != nullptr) {
             thread_cb_(loop_ptr.get());
         }
-        thread_pool_->enqueue([loop_ptr] { loop_ptr->loop(); });
+        thread_pool_->enqueue([](decltype(loop_ptr) loop) { loop->loop(); }, loop_ptr);
     }
 }
 

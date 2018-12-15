@@ -11,14 +11,24 @@
 
 #include <bounce/event_loop.h>
 
+#include <sys/socket.h>
+
 #include <bounce/channel.h>
 #include <bounce/poll_poller.h>
 
 bounce::EventLoop::EventLoop() :
 	looping_(false),
 	stop_(false),
-	poller_(new PollPoller(this))
-{}
+	poller_(new PollPoller(this)),
+	weak_up_channel_(this, ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)) {
+	if (weak_up_channel_.fd() == -1) {
+		// FIXME: error
+		console->critical("Weak up channel fd is -1");
+		exit(-1);
+	}
+	weak_up_channel_.setReadCallback(std::bind(&EventLoop::weakupCallback, this, std::placeholders::_1));
+	weak_up_channel_.enableReading();
+}
 
 void bounce::EventLoop::loop() {
 	looping_ = true;
@@ -51,6 +61,11 @@ void bounce::EventLoop::doTheTasks() {
 	}
 }
 
+void bounce::EventLoop::weakupCallback(time_t) {
+	char buf[10] = {0};
+	::recv(weak_up_channel_.fd(), buf, 2, 0);
+}
+
 void bounce::EventLoop::doTaskInThread(bounce::EventLoop::Functor& func) {
 	if(thread_id_ == std::this_thread::get_id()) {
 		func();
@@ -64,7 +79,8 @@ void bounce::EventLoop::queueTaskInThread(Functor& func) {
 		std::lock_guard<std::mutex> guard(mutex_);
 		task_vec_.push_back(func);
 	}
-	//TODO: wake up thread
+	// wake up thread
+	::send(weak_up_channel_.fd(), "a", 2, 0);
 }
 
 void bounce::EventLoop::doTaskInThread(bounce::EventLoop::Functor&& func) {
@@ -80,6 +96,7 @@ void bounce::EventLoop::queueTaskInThread(Functor&& func) {
 		std::lock_guard<std::mutex> guard(mutex_);
 		task_vec_.push_back(std::move(func));
 	}
-	//TODO: wake up thread
+	// wake up thread
+	::send(weak_up_channel_.fd(), "a", 2, 0);
 }
 

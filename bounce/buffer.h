@@ -17,12 +17,14 @@
 
 namespace bounce {
 
+extern ssize_t BUFFER_INIT_SIZE;
+
 class Buffer {
 	typedef std::vector<char>::size_type SizeType;
-	const size_t BUFFER_SIZE = 1024;  // TODO: Read Configuration to set BUFFER_SIZE.
 public:
-	Buffer() : 
-		buffer_(BUFFER_SIZE),
+	Buffer() :
+	    init_size_(BUFFER_INIT_SIZE),
+		buffer_(init_size_),
 		read_index_(0),
 		write_index_(0) 
 	{}
@@ -70,6 +72,7 @@ public:
 private:
 	void makeSpace(size_t len);
 
+	ssize_t init_size_;
 	std::vector<char> buffer_;
 	SizeType read_index_;
 	SizeType write_index_;

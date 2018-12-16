@@ -12,6 +12,8 @@
 #ifndef BOUNCE_LOGGER_H
 #define BOUNCE_LOGGER_H
 
+#include <pthread.h>
+
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
@@ -19,16 +21,24 @@
 
 namespace bounce {
 
-// console log for debug and async_file for library.
-extern std::shared_ptr<spdlog::logger> console;
-extern std::shared_ptr<spdlog::logger> async_file;
+#define FILENAME(x) strrchr(x, '/')?strrchr(x, '/')+1:x
 
-class LogConfiger {
+void logSysInit();
+
+class Logger {
 public:
-    LogConfiger() = default;
+    static std::shared_ptr<spdlog::logger> get(const std::string &name) {
+        pthread_once(&once_, logSysInit);
+        return spdlog::details::registry::instance().get(name);
+    }
+private:
+    Logger() = default;
+    static pthread_once_t once_;
 };
 
-extern LogConfiger g_logconf;
+extern std::string log_path;
+extern enum spdlog::level::level_enum log_level;
+extern enum spdlog::level::level_enum log_flush_level;
 
 } // namespace bounce
 

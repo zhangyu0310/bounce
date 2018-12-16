@@ -15,6 +15,8 @@
 
 #include <sys/uio.h>
 
+ssize_t bounce::BUFFER_INIT_SIZE = 1024;
+
 void bounce::Buffer::append(const char* src, size_t len) {
 	if (writeableBytes() < len) {
 		makeSpace(len);
@@ -26,7 +28,7 @@ void bounce::Buffer::append(const char* src, size_t len) {
 // Write space is not enough.
 // If read_index_ is more than half of BUFFER_SIZE, forward data, else resize buffer. 
 void bounce::Buffer::makeSpace(size_t len) {
-	if (read_index_ > BUFFER_SIZE / 2) {
+	if (read_index_ > static_cast<SizeType>(init_size_ / 2)) {
 		std::copy(&buffer_[read_index_], &buffer_[write_index_], &buffer_[0]);
 		write_index_ -= read_index_;
 		read_index_ = 0;
@@ -50,7 +52,8 @@ ssize_t bounce::Buffer::readFd(int fd, int* errorno) {
 
 	if (ret < 0) {
 		*errorno = errno;
-	} else if (writeableBytes() > ret) { // buffer_ is not filled up.
+	} else if (static_cast<ssize_t >(writeableBytes()) > ret) {
+		// buffer_ is not filled up.
 		write_index_ += ret;
 	} else { // buffer_ is been filled up. move buf into buffer_.
 		size_t write_able = writeableBytes();

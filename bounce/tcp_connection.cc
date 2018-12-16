@@ -41,7 +41,7 @@ void bounce::TcpConnection::send(const std::string& message) {
     if (!channel_->isWriting() && output_buffer_.readableBytes() == 0) {
         wrote_bytes = ::send(channel_->fd(), message.c_str(), message.size(), 0);
         // send success and finish.
-        if (wrote_bytes == send_bytes) {
+        if (wrote_bytes == static_cast<ssize_t>(send_bytes)) {
             if (write_cb_) {
                 // The function TcpConnection::send() may be called by other thread.
                 // Why do not use doTaskInThread? Write complate callback maybe block the thread.

@@ -26,27 +26,41 @@ class EventLoop;
 
 class TcpServer {
 	typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
+	typedef std::function<void(EventLoop*)> ThreadInitCallback;
 	typedef std::function<void(const TcpConnectionPtr&)> ConnectionCallback;
 	typedef std::function<void(const TcpConnectionPtr&)> CloseCallback;
 	typedef std::function<void(const TcpConnectionPtr&)> WriteCompleteCallback;
 	typedef std::function<void(const TcpConnectionPtr&, Buffer*, time_t)> MessageCallback;
 public:
-	TcpServer(EventLoop* loop, const std::string& ip, uint16_t port, uint32_t thread_num = 0);
+	TcpServer(EventLoop* loop,
+	        const std::string& ip,
+	        uint16_t port,
+	        uint32_t thread_num = 0);
 	~TcpServer() = default;
 	void start();
-	void setThreadNumber(uint32_t num) { thread_pool_->addThreadNumber(num); }
-	void setConnectionCallback(const ConnectionCallback& cb) { connect_cb_ = cb; }
-	void setMessageCallback(const MessageCallback& cb) { message_cb_ = cb; }
-	void setWriteCompleteCallback(const WriteCompleteCallback& cb) { write_cb_ = cb; }
-	void setCloseCallback(const CloseCallback& cb) { close_cb_ = cb; }
+	void setThreadNumber(uint32_t num)
+	{ thread_pool_->addThreadNumber(num); }
+	void setThreadInitCallback(const ThreadInitCallback& cb)
+	{ thread_init_cb_ = cb; }
+	void setConnectionCallback(const ConnectionCallback& cb)
+	{ connect_cb_ = cb; }
+	void setMessageCallback(const MessageCallback& cb)
+	{ message_cb_ = cb; }
+	void setWriteCompleteCallback(const WriteCompleteCallback& cb)
+	{ write_cb_ = cb; }
+	void setCloseCallback(const CloseCallback& cb)
+	{ close_cb_ = cb; }
 
-	uint32_t getThreadNumber() { return thread_pool_->getThreadNumber(); }
+	uint32_t getThreadNumber()
+	{ return thread_pool_->getThreadNumber(); }
 	
 private:
 	void newConnection(int fd, const SockAddress& addr);
+	void threadInit(EventLoop* loop);
 
 	EventLoop* loop_;
 	Acceptor acceptor_;
+	ThreadInitCallback thread_init_cb_;
 	ConnectionCallback connect_cb_;
 	MessageCallback message_cb_;
 	WriteCompleteCallback write_cb_;

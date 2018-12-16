@@ -25,9 +25,12 @@ class Channel {
 public:
 	Channel(EventLoop* loop, int fd) :
 	    fd_(fd),
-		loop_(loop) 
+	    events_(0),
+	    revents_(0),
+		loop_(loop),
+		index_(0)
 	{}
-	~Channel() {}
+	~Channel() = default;
 	Channel(const Channel&) = delete;
 	Channel& operator=(const Channel&) = delete;
 
@@ -42,6 +45,7 @@ public:
 	void setWriteCallback(EventCallback cb) { write_cb_ = cb; }
 	void setCloseCallback(EventCallback cb) { close_cb_ = cb; }
 	void setErrorCallback(EventCallback cb) { error_cb_ = cb; }
+	void setIndex(unsigned long index) { index_ = index; }
 
 	void enableReading() { events_ |= kReadEvent; update(); }
 	void disableReading() { events_ &= ~kReadEvent; update(); }
@@ -50,11 +54,12 @@ public:
 	void disableAll() { events_ = kNoneEvent; update(); }
 	bool isWriting() const { return events_ & kWriteEvent; }
 	bool isReading() const { return events_ & kReadEvent; }
+	unsigned long index() { return index_; }
 
 private:
-	static const int kNoneEvent;
-	static const int kReadEvent;
-	static const int kWriteEvent;
+	static const short int kNoneEvent;
+	static const short int kReadEvent;
+	static const short int kWriteEvent;
 
 	void update();
 
@@ -62,6 +67,7 @@ private:
 	short int events_;
 	short int revents_;
 	EventLoop* loop_;
+	unsigned long index_;
 
 	ReadEventCallback read_cb_;
 	EventCallback write_cb_;

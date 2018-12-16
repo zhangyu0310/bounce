@@ -41,7 +41,6 @@ public:
 	void updateChannel(Channel* channel);
 	//void removeChannel(Channel* channel);
 
-	// TODO: add move version (&&)
 	void doTaskInThread(Functor& func);
 	void queueTaskInThread(Functor& func);
 
@@ -54,6 +53,7 @@ private:
 
 	bool looping_;
 	bool stop_;
+	bool doing_the_tasks_;
 	std::thread::id thread_id_;
 	std::unique_ptr<Poller> poller_;
 
@@ -63,7 +63,8 @@ private:
 
 	std::mutex mutex_;
 	std::vector<Functor> task_vec_;
-	Channel weak_up_channel_;
+	int weakup_fd_;
+	std::unique_ptr<Channel> weak_up_channel_;
 };
 
 } // namespace bounce

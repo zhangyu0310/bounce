@@ -13,9 +13,12 @@ target_link_libraries(buffer_test pthread)
 
 add_executable(poller_test poller_test.cc)
 target_link_libraries(poller_test bounce)
+target_link_libraries(poller_test pthread)
 
 add_executable(tcpconnection_test tcpconnection_test.cc)
 target_link_libraries(tcpconnection_test bounce)
+target_link_libraries(tcpconnection_test pthread)
 
 add_executable(tcpserver_test tcpserver_test.cc)
 target_link_libraries(tcpserver_test bounce)
+target_link_libraries(tcpserver_test pthread)

@@ -13,9 +13,9 @@
 
 #include <poll.h>
 
-const int bounce::Channel::kNoneEvent = 0;
-const int bounce::Channel::kReadEvent = POLLIN | POLLPRI;
-const int bounce::Channel::kWriteEvent = POLLOUT;
+const short int bounce::Channel::kNoneEvent = 0;
+const short int bounce::Channel::kReadEvent = POLLIN | POLLPRI;
+const short int bounce::Channel::kWriteEvent = POLLOUT;
 
 void bounce::Channel::handleChannel(time_t recv_time) {
 	// fd is closed and nothing to read.

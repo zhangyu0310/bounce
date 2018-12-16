@@ -22,16 +22,28 @@ bounce::LoopThreadPool::LoopThreadPool(
         thread_num_(thread_num),
         next_loop_index_(0) { }
 
+void bounce::LoopThreadPool::threadLoop() {
+    EventLoop event_loop;
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+        loops_.push_back(&event_loop);
+    }
+    // FIXME: thread init call back.
+    /*if (thread_cb_ != nullptr) {
+        thread_cb_(&event_loop);
+    }*/
+    event_loop.loop();
+}
+
 void bounce::LoopThreadPool::start() {
     started_ = true;
-    thread_pool_ = std::unique_ptr<ThreadPool>(new ThreadPool(thread_num_));
-    for (int i = 0; i < thread_num_; ++i) {
-        auto loop_ptr = std::make_shared<EventLoop>();
-        loops_.push_back(loop_ptr);
-        if (thread_cb_ != nullptr) {
-            thread_cb_(loop_ptr.get());
-        }
-        thread_pool_->enqueue([](decltype(loop_ptr) loop) { loop->loop(); }, loop_ptr);
+    //thread_pool_ = std::unique_ptr<ThreadPool>(new ThreadPool(thread_num_));
+    for (uint32_t i = 0; i < thread_num_; ++i) {
+        //thread_pool_->enqueue(std::bind(&LoopThreadPool::threadLoop, this));
+        EventLoopThreadPtr loop_thread(
+               new EventLoopThread(std::bind(&LoopThreadPool::threadLoop, this)));
+        loop_thread->run();
+        threads_.push_back(loop_thread);
     }
 }
 
@@ -44,5 +56,5 @@ bounce::EventLoop* bounce::LoopThreadPool::getLoopForNewConnection() {
     if (next_loop_index_ >= thread_num_) { // > is impossible
         next_loop_index_ = 0;
     }
-    return loops_[next_loop_index_++].get();
+    return loops_[next_loop_index_++];
 }

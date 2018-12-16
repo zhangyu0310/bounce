@@ -14,15 +14,18 @@
 
 #include <functional>
 #include <memory>
+#include <thread>
 #include <vector>
 
 #include <bounce/event_loop.h>
-#include <ThreadPool/ThreadPool.h>
+#include <bounce/event_loop_thread.h>
+//#include <ThreadPool/ThreadPool.h>
 
 namespace bounce {
 
 class LoopThreadPool {
     typedef std::shared_ptr<EventLoop> EventLoopPtr;
+    typedef std::shared_ptr<EventLoopThread> EventLoopThreadPtr;
     typedef std::function<void(EventLoop*)> InitThreadCallback;
 public:
     LoopThreadPool(EventLoop* loop, uint32_t thread_num);
@@ -39,6 +42,7 @@ public:
     { thread_cb_ = cb; }
     EventLoop* getLoopForNewConnection();
     uint32_t getThreadNumber() const { return thread_num_; }
+    void threadLoop();
 
 private:
     bool started_;
@@ -46,8 +50,11 @@ private:
     uint32_t thread_num_;
     uint32_t next_loop_index_;
     InitThreadCallback thread_cb_;
-    std::unique_ptr<ThreadPool> thread_pool_;
-    std::vector<EventLoopPtr> loops_;
+    //std::unique_ptr<ThreadPool> thread_pool_;
+    std::vector<EventLoopThreadPtr> threads_;
+    //std::vector<std::shared_ptr<std::thread>> threads_;
+    std::mutex mutex_;
+    std::vector<EventLoop*> loops_;
 };
 
 } // namespace bounce

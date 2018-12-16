@@ -11,7 +11,9 @@
 
 #include <bounce/event_loop.h>
 
+#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/eventfd.h>
 
 #include <bounce/channel.h>
 #include <bounce/poll_poller.h>
@@ -19,15 +21,21 @@
 bounce::EventLoop::EventLoop() :
 	looping_(false),
 	stop_(false),
+	doing_the_tasks_(false),
+	thread_id_(std::this_thread::get_id()),
 	poller_(new PollPoller(this)),
-	weak_up_channel_(this, ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)) {
-	if (weak_up_channel_.fd() == -1) {
-		// FIXME: error
-		console->critical("Weak up channel fd is -1");
+	weakup_fd_(::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC)),
+	weak_up_channel_(new Channel(this, weakup_fd_)) {
+	if (weakup_fd_ == -1) {
+		Logger::get("bounce_file_log")->critical(
+		        "file:{}, line:{}, function:{}  Weak up channel fd is -1",
+                FILENAME(__FILE__), __LINE__, __FUNCTION__);
 		exit(-1);
 	}
-	weak_up_channel_.setReadCallback(std::bind(&EventLoop::weakupCallback, this, std::placeholders::_1));
-	weak_up_channel_.enableReading();
+	weak_up_channel_->setReadCallback(std::bind(
+			&EventLoop::weakupCallback,
+			this, std::placeholders::_1));
+	weak_up_channel_->enableReading();
 }
 
 void bounce::EventLoop::loop() {
@@ -51,6 +59,7 @@ void bounce::EventLoop::updateChannel(Channel* channel) {
 }
 
 void bounce::EventLoop::doTheTasks() {
+    doing_the_tasks_ = true;
 	std::vector<Functor> tmp_vec;
 	{
 		std::lock_guard<std::mutex> guard(mutex_);
@@ -59,11 +68,18 @@ void bounce::EventLoop::doTheTasks() {
 	for (auto task : tmp_vec) {
 		task();
 	}
+	doing_the_tasks_ = false;
 }
 
 void bounce::EventLoop::weakupCallback(time_t) {
-	char buf[10] = {0};
-	::recv(weak_up_channel_.fd(), buf, 2, 0);
+    uint64_t one = 1;
+    ssize_t n = ::read(weakup_fd_, &one, sizeof one);
+    if (n != sizeof one)
+    {
+        Logger::get("bounce_file_log")->error(
+                "file:{}, line:{}, function:{}  reads {} bytes instead of 8.",
+                FILENAME(__FILE__), __LINE__, __FUNCTION__, n);
+    }
 }
 
 void bounce::EventLoop::doTaskInThread(bounce::EventLoop::Functor& func) {
@@ -80,7 +96,16 @@ void bounce::EventLoop::queueTaskInThread(Functor& func) {
 		task_vec_.push_back(func);
 	}
 	// wake up thread
-	::send(weak_up_channel_.fd(), "a", 2, 0);
+    if ((std::this_thread::get_id() != thread_id_) && !doing_the_tasks_) {
+        uint64_t one = 1;
+        ssize_t n = ::write(weakup_fd_, &one, sizeof one);
+        if (n != sizeof one)
+        {
+            Logger::get("bounce_file_log")->error(
+                    "file:{}, line:{}, function:{}  write {} bytes instead of 8.",
+                    FILENAME(__FILE__), __LINE__, __FUNCTION__, n);
+        }
+    }
 }
 
 void bounce::EventLoop::doTaskInThread(bounce::EventLoop::Functor&& func) {
@@ -97,6 +122,15 @@ void bounce::EventLoop::queueTaskInThread(Functor&& func) {
 		task_vec_.push_back(std::move(func));
 	}
 	// wake up thread
-	::send(weak_up_channel_.fd(), "a", 2, 0);
+    if ((std::this_thread::get_id() != thread_id_) && !doing_the_tasks_) {
+        uint64_t one = 1;
+        ssize_t n = ::write(weakup_fd_, &one, sizeof one);
+        if (n != sizeof one)
+        {
+            Logger::get("bounce_file_log")->error(
+                    "file:{}, line:{}, function:{}  write {} bytes instead of 8.",
+                    FILENAME(__FILE__), __LINE__, __FUNCTION__, n);
+        }
+    }
 }
 

@@ -23,7 +23,12 @@ bounce::TcpServer::TcpServer(EventLoop* loop,
 }
 
 void bounce::TcpServer::start() {
+    thread_pool_->addInitThreadCallback(
+            std::bind(&TcpServer::threadInit,
+                    this, std::placeholders::_1));
 	thread_pool_->start();
+	//loop_->doTaskInThread(
+	//		std::bind(&Acceptor::startListen, &acceptor_));
 	acceptor_.startListen();
 }
 
@@ -38,15 +43,23 @@ void bounce::TcpServer::newConnection(int fd, const SockAddress& addr) {
 	}
 	if (conn_loop == nullptr) {
 	    // FIXME: error!
-	    console->error("Can't get a connection loop.");
+	    Logger::get("bounce_file_log")->error(
+	            "file:{}, line:{}, function:{}  Can't get a connection loop.",
+				FILENAME(__FILE__), __LINE__, __FUNCTION__);
 	    conn_loop = loop_;
 	}
-	std::shared_ptr<TcpConnection> conn(new TcpConnection(conn_loop, fd));
+	std::shared_ptr<TcpConnection> conn(
+	        new TcpConnection(conn_loop, fd));
 	conn->setConnectCallback(connect_cb_);
 	conn->setMessageCallback(message_cb_);
 	conn->setWriteCompleteCallback(write_cb_);
 	conn->setCloseCallback(close_cb_);
 	// TODO: setErrorCallback()
 	connection_map_.insert(std::make_pair(fd, conn));
-	conn_loop->doTaskInThread(std::bind(&TcpConnection::connectComplete, conn));
+	conn_loop->doTaskInThread(
+	        std::bind(&TcpConnection::connectComplete, conn));
+}
+
+void bounce::TcpServer::threadInit(bounce::EventLoop *loop) {
+    thread_init_cb_(loop);
 }

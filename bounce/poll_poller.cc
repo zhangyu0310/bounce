@@ -13,6 +13,7 @@
 #include <chrono>
 
 #include <bounce/channel.h>
+#include <bounce/logger.h>
 
 std::time_t bounce::PollPoller::poll(int timeout, 
 	ChannelList* active_channels) {
@@ -31,9 +32,11 @@ std::time_t bounce::PollPoller::poll(int timeout,
 			}
 		}
 	} else if (r_num == 0) {
-		// time out
+		// FIXME: time out
 	} else {
-		// FIXME: r_num < 0  show the error.
+		Logger::get("bounce_file_log")->error(
+				"file:{}, line:{}, function:{}  ::poll return {}, errno is {}",
+				FILENAME(__FILE__), __LINE__, __FUNCTION__, r_num, errno);
 	}
 	using std::chrono::system_clock;
 	return system_clock::to_time_t(system_clock::now());
@@ -42,7 +45,12 @@ std::time_t bounce::PollPoller::poll(int timeout,
 void bounce::PollPoller::updateChannel(Channel* channel) {
 	// the arg 'channel' is already exists. update the channel.
 	if (channels_.find(channel->fd()) != channels_.end()) {
-		// FIXME: I don't know how to do.
+		struct pollfd &tmp = pollfds_[channel->index()];
+		tmp.fd = channel->fd();
+		tmp.events = channel->events();
+		tmp.revents = 0;
+		// TODO:If channel events == NoneEvent. ignore it.
+		// tmp.fd = -tmp.fd
 	} else {
 		// Insert channel map and pollfds.
 		channels_.insert(std::make_pair(channel->fd(), channel));
@@ -51,9 +59,10 @@ void bounce::PollPoller::updateChannel(Channel* channel) {
 		tmp.events = channel->events();
 		tmp.revents = 0;
 		pollfds_.push_back(tmp);
+		channel->setIndex(pollfds_.size() - 1);
 	}
 }
 
 void bounce::PollPoller::removeChannel(Channel* channel) {
-	// TODO:
+	// FIXME:
 }

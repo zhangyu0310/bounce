@@ -41,8 +41,17 @@ void write_cb(const std::shared_ptr<TcpConnection>& conn) {
 }
 
 int main() {
+    //spdlog::get("bounce_file_log")->info("First log.");
+    bounce::log_level = spdlog::level::err;
+    std::cout << "pthread_id: " << std::this_thread::get_id() << std::endl;
+    Logger::get("bounce_file_log")->info(
+            "file:{}, line:{}, function:{}  I am in main",
+			FILENAME(__FILE__), __LINE__, __FUNCTION__);
+    Logger::get("bounce_file_log")->error(
+            "file:{}, line:{}, function:{}  I am in main",
+			FILENAME(__FILE__), __LINE__, __FUNCTION__);
 	EventLoop loop;
-	TcpServer server(&loop, "127.0.0.1", 9281, 3);
+	TcpServer server(&loop, "127.0.0.1", 9281, 1);
 	server.setConnectionCallback(conn_cb);
 	server.setMessageCallback(read_cb);
 	server.setWriteCompleteCallback(write_cb);

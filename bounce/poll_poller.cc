@@ -10,6 +10,7 @@
 
 #include <bounce/poll_poller.h>
 
+#include <algorithm>
 #include <chrono>
 
 #include <bounce/channel.h>
@@ -31,8 +32,6 @@ std::time_t bounce::PollPoller::poll(int timeout,
 				active_channels->push_back(m_it->second);
 			}
 		}
-	} else if (r_num == 0) {
-		// FIXME: time out
 	} else {
 		Logger::get("bounce_file_log")->error(
 				"file:{}, line:{}, function:{}  ::poll return {}, errno is {}",
@@ -49,12 +48,24 @@ void bounce::PollPoller::updateChannel(Channel* channel) {
 		tmp.fd = channel->fd();
 		tmp.events = channel->events();
 		tmp.revents = 0;
-		// TODO:If channel events == NoneEvent. ignore it.
-		// tmp.fd = -tmp.fd
+		// If channel events == NoneEvent. ignore it.
+		// Why set fd = -fd?
+		// man poll :
+		/*
+		 * The field events is an input  parameter,  a  bit  mask  specifying  the
+		 * events  the  application  is  interested in for the file descriptor fd.
+		 * This field may be specified as zero, in which case the only events that
+		 * can  be  returned  in  revents  are POLLHUP, POLLERR, and POLLNVAL (see
+		 * below).
+		 */
+		if (channel->isNoneEvent()) {
+			// if tmp.fd == 0, must sub 1.
+			tmp.fd = -(tmp.fd) - 1;
+		}
 	} else {
 		// Insert channel map and pollfds.
 		channels_.insert(std::make_pair(channel->fd(), channel));
-		struct pollfd tmp;
+		struct pollfd tmp{-1, 0, 0};
 		tmp.fd = channel->fd();
 		tmp.events = channel->events();
 		tmp.revents = 0;
@@ -64,5 +75,23 @@ void bounce::PollPoller::updateChannel(Channel* channel) {
 }
 
 void bounce::PollPoller::removeChannel(Channel* channel) {
-	// FIXME:
+	auto it = channels_.find(channel->fd());
+	if (it != channels_.end()) {
+		channels_.erase(it);
+		unsigned long idx = channel->index();
+		auto last = pollfds_.size();
+		// if idx == last - 1 pop_back directly.
+		if (idx != last - 1) {
+			// Give last channel the drop index.
+			// Fill in space.
+			channels_[last - 1]->setIndex(idx);
+			std::iter_swap(&pollfds_[idx], &pollfds_[last - 1]);
+			pollfds_.pop_back();
+		}
+		pollfds_.pop_back();
+	} else {
+		Logger::get("bounce_file_log")->critical(
+				"file:{}, line:{}, function:{}  removeChannel can't find",
+				FILENAME(__FILE__), __LINE__, __FUNCTION__);
+	}
 }

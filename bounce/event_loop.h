@@ -36,10 +36,12 @@ public:
 	~EventLoop() = default;
 	EventLoop(const EventLoop&) = delete;
 	EventLoop& operator=(const EventLoop&) = delete;
+	EventLoop(EventLoop&&) = delete;
+	EventLoop&operator=(EventLoop&&) = delete;
 
 	void loop();
 	void updateChannel(Channel* channel);
-	//void removeChannel(Channel* channel);
+	void removeChannel(Channel* channel);
 
 	void doTaskInThread(Functor& func);
 	void queueTaskInThread(Functor& func);

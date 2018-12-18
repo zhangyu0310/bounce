@@ -25,8 +25,8 @@ class EventLoop;
 class Poller {
 public:
 	typedef std::list<Channel*> ChannelList;
-	Poller(EventLoop* loop) : loop_(loop) {}
-	virtual ~Poller() {}
+	explicit Poller(EventLoop* loop) : loop_(loop) {}
+	virtual ~Poller() = default;
 	Poller(const Poller&) = delete;
 	Poller& operator=(const Poller&) = delete;
 

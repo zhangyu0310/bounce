@@ -24,31 +24,49 @@ class Buffer {
 public:
 	Buffer() :
 	    init_size_(BUFFER_INIT_SIZE),
-		buffer_(init_size_),
+		buffer_(static_cast<size_t >(init_size_)),
 		read_index_(0),
 		write_index_(0) 
 	{}
+	~Buffer() = default;
+	Buffer(const Buffer& buf) :
+		init_size_(buf.init_size_),
+		read_index_(buf.read_index_),
+		write_index_(buf.write_index_) {
+		for (auto it : buf.buffer_) {
+			buffer_.push_back(it);
+		}
+	}
+	Buffer(Buffer&& buf) noexcept :
+		init_size_(buf.init_size_),
+		buffer_(std::move(buf.buffer_)),
+		read_index_(buf.read_index_),
+		write_index_(buf.write_index_) {
+	}
+	// TODO: copy operator?
 
 	size_t readableBytes() { return write_index_ - read_index_; }
 	size_t writeableBytes() { return buffer_.size() - write_index_; }
 
 	// Peek
 	const char* peek() { return buffer_.data() + read_index_; }
-	int8_t peekInt8();
-	int16_t peekInt16();
-	int32_t peekInt32();
-	int64_t peekInt64();
+	// TODO: some buffer function
+	//int8_t peekInt8();
+	//int16_t peekInt16();
+	//int32_t peekInt32();
+	//int64_t peekInt64();
 
 	// Input
-	void append(std::string src) {
+	void append(const std::string& src) {
 		append(src.c_str(), src.size());
 	}
 	void append(const char* src, size_t len);
 	ssize_t readFd(int fd, int* errorno);
-	void writeInt8();
-	void writeInt16();
-	void writeInt32();
-	void writeInt64();
+	// TODO: some buffer function
+	//void writeInt8();
+	//void writeInt16();
+	//void writeInt32();
+	//void writeInt64();
 
 	// Output
 	std::string readAllAsString() {
@@ -64,10 +82,11 @@ public:
 			read_index_ = write_index_ = 0;
 		}
 	}
-	int8_t readInt8();
-	int16_t readInt16();
-	int32_t readInt32();
-	int64_t readInt64();
+	// TODO: some buffer function
+	//int8_t readInt8();
+	//int16_t readInt16();
+	//int32_t readInt32();
+	//readInt64();
 
 private:
 	void makeSpace(size_t len);

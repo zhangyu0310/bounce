@@ -24,6 +24,12 @@ class EventLoopThread {
     typedef std::function<void(void)> LoopFunction;
 public:
     explicit EventLoopThread(const LoopFunction& func);
+    ~EventLoopThread() = default;
+    EventLoopThread(const EventLoopThread&) = delete;
+    EventLoopThread(EventLoopThread&&) = delete;
+    EventLoopThread& operator=(const EventLoopThread&) = delete;
+    EventLoopThread& operator=(EventLoopThread&&) = delete;
+
     void run();
 
 private:

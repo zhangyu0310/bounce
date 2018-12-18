@@ -22,9 +22,14 @@
 using namespace bounce;
 
 void conn_cb(const std::shared_ptr<TcpConnection>& conn) {
-	std::cout << "New Connnection..." << std::endl;
-	std::cout << "This thread_id is ";
-	std::cout << std::this_thread::get_id() << std::endl;
+	if (conn->state() == TcpConnection::connected) {
+		std::cout << "New Connnection..." << std::endl;
+		std::cout << "This thread_id is ";
+		std::cout << std::this_thread::get_id() << std::endl;
+		std::cout << std::endl;
+	} else if (conn->state() == TcpConnection::disconnected) {
+		std:: cout << "Connection is over..." << std::endl;
+	}
 }
 
 void read_cb(const std::shared_ptr<TcpConnection>& conn, Buffer* buffer, time_t time) {
@@ -34,10 +39,12 @@ void read_cb(const std::shared_ptr<TcpConnection>& conn, Buffer* buffer, time_t 
 	conn->send(message);
     std::cout << "This thread_id is ";
     std::cout << std::this_thread::get_id() << std::endl;
+    std::cout << std::endl;
 }
 
 void write_cb(const std::shared_ptr<TcpConnection>& conn) {
 	std::cout << "Write back finish..." << std::endl;
+	std::cout << std::endl;
 }
 
 int main() {
@@ -47,11 +54,8 @@ int main() {
     Logger::get("bounce_file_log")->info(
             "file:{}, line:{}, function:{}  I am in main",
 			FILENAME(__FILE__), __LINE__, __FUNCTION__);
-    Logger::get("bounce_file_log")->error(
-            "file:{}, line:{}, function:{}  I am in main",
-			FILENAME(__FILE__), __LINE__, __FUNCTION__);
 	EventLoop loop;
-	TcpServer server(&loop, "127.0.0.1", 9281, 1);
+	TcpServer server(&loop, "127.0.0.1", 9281, 3);
 	server.setConnectionCallback(conn_cb);
 	server.setMessageCallback(read_cb);
 	server.setWriteCompleteCallback(write_cb);

@@ -27,7 +27,7 @@ class Acceptor {
 	typedef std::function<void(int fd, const SockAddress&)> AcceptCallback;
 public:
 	Acceptor(EventLoop*, const SockAddress&);
-	//~Acceptor();
+	~Acceptor() = default;
 	Acceptor(const Acceptor&) = delete;
 	Acceptor& operator=(const Acceptor&) = delete;
 	void setAcceptCallback(const AcceptCallback& cb) { accept_cb_ = cb; }

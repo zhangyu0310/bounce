@@ -20,18 +20,20 @@ namespace bounce {
 
 class SockAddress;
 
+// This class can't be copy.
+// because it's control life of fd.
 class Socket {
 public:
-	Socket(int fd) : fd_(fd) {}
+	explicit Socket(int fd) : fd_(fd) {}
 	~Socket() { ::close(fd_); }
 	Socket(const Socket&) = delete;
 	Socket& operator=(const Socket&) = delete;
 
-	void bind(SockAddress& addr); // FIXME: bindOrDie();
-	void listen(); // FIXME: listenOrDie();
+	void bind(SockAddress& addr); // bindOrDie;
+	void listen(); // listenOrDie;
 	int accept(SockAddress* addr);
-	void shutdownWrite() { ::shutdown(fd_, SHUT_WR); } // FIXME: If false
-	void shutdownRead() { ::shutdown(fd_, SHUT_RD); } // FIXME: If false
+	void shutdownWrite() { ::shutdown(fd_, SHUT_WR); }
+	void shutdownRead() { ::shutdown(fd_, SHUT_RD); }
 	int fd() { return fd_; }
 
 private:

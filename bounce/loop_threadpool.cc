@@ -28,10 +28,9 @@ void bounce::LoopThreadPool::threadLoop() {
         std::lock_guard<std::mutex> guard(mutex_);
         loops_.push_back(&event_loop);
     }
-    // FIXME: thread init call back.
-    /*if (thread_cb_ != nullptr) {
+    if (thread_cb_ != nullptr) {
         thread_cb_(&event_loop);
-    }*/
+    }
     event_loop.loop();
 }
 
@@ -47,7 +46,7 @@ void bounce::LoopThreadPool::start() {
     }
 }
 
-void bounce::LoopThreadPool::addThreadNumber(uint32_t num) {
+void bounce::LoopThreadPool::setThreadNumber(uint32_t num) {
     if (started_) return;
     thread_num_ = num;
 }

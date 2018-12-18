@@ -46,7 +46,7 @@ void logSysInit() {
 
 pthread_once_t bounce::Logger::once_ = PTHREAD_ONCE_INIT;
 
-std::string log_path = "./logs";
+std::string log_path("./logs");
 enum spdlog::level::level_enum log_level = spdlog::level::trace;
 enum spdlog::level::level_enum log_flush_level = spdlog::level::err;
 

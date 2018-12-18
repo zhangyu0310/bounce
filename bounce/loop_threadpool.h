@@ -24,20 +24,16 @@
 namespace bounce {
 
 class LoopThreadPool {
-    typedef std::shared_ptr<EventLoop> EventLoopPtr;
     typedef std::shared_ptr<EventLoopThread> EventLoopThreadPtr;
     typedef std::function<void(EventLoop*)> InitThreadCallback;
 public:
     LoopThreadPool(EventLoop* loop, uint32_t thread_num);
-    ~LoopThreadPool() {
-        // nothing to do. EventLoops are shared_ptr.
-        // vector :loops_ destruct, EventLoops will destruct auto.
-    }
+    ~LoopThreadPool() = default;
     LoopThreadPool(const LoopThreadPool&) = delete;
     LoopThreadPool& operator=(const LoopThreadPool&) = delete;
 
     void start();
-    void addThreadNumber(uint32_t num);
+    void setThreadNumber(uint32_t num);
     void addInitThreadCallback(const InitThreadCallback& cb)
     { thread_cb_ = cb; }
     EventLoop* getLoopForNewConnection();
@@ -50,9 +46,7 @@ private:
     uint32_t thread_num_;
     uint32_t next_loop_index_;
     InitThreadCallback thread_cb_;
-    //std::unique_ptr<ThreadPool> thread_pool_;
     std::vector<EventLoopThreadPtr> threads_;
-    //std::vector<std::shared_ptr<std::thread>> threads_;
     std::mutex mutex_;
     std::vector<EventLoop*> loops_;
 };

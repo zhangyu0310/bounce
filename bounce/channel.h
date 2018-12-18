@@ -22,6 +22,9 @@ class EventLoop;
 class Channel {
 	typedef std::function<void(void)> EventCallback;
 	typedef std::function<void(time_t)> ReadEventCallback;
+	static const short int kNoneEvent;
+	static const short int kReadEvent;
+	static const short int kWriteEvent;
 public:
 	Channel(EventLoop* loop, int fd) :
 	    fd_(fd),
@@ -38,36 +41,36 @@ public:
 	int fd() const { return fd_; }
 	short int events() const { return events_; }
 	short int revents() const { return revents_; }
-	bool isNoneEvent() const { return events_ == kNoneEvent; }
+
+	// Be replaced by enableXX & disableXX.
 	//void setEvents(short int events) { events_ = events; }
 	void setRevents(short int revents) { revents_ = revents; }
-	void setReadCallback(ReadEventCallback cb) { read_cb_ = cb; }
-	void setWriteCallback(EventCallback cb) { write_cb_ = cb; }
-	void setCloseCallback(EventCallback cb) { close_cb_ = cb; }
-	void setErrorCallback(EventCallback cb) { error_cb_ = cb; }
-	void setIndex(unsigned long index) { index_ = index; }
+	void setReadCallback(const ReadEventCallback& cb) { read_cb_ = cb; }
+	void setWriteCallback(const EventCallback& cb) { write_cb_ = cb; }
+	void setCloseCallback(const EventCallback& cb) { close_cb_ = cb; }
+	void setErrorCallback(const EventCallback& cb) { error_cb_ = cb; }
+	void setIndex(size_t index) { index_ = index; }
 
 	void enableReading() { events_ |= kReadEvent; update(); }
 	void disableReading() { events_ &= ~kReadEvent; update(); }
 	void enableWriting() { events_ |= kWriteEvent; update(); }
 	void disableWriting() { events_ &= ~kWriteEvent; update(); }
 	void disableAll() { events_ = kNoneEvent; update(); }
-	bool isWriting() const { return events_ & kWriteEvent; }
-	bool isReading() const { return events_ & kReadEvent; }
-	unsigned long index() { return index_; }
+	bool isWriting() const { return static_cast<bool>(events_ & kWriteEvent); }
+	bool isReading() const { return static_cast<bool>(events_ & kReadEvent); }
+	bool isNoneEvent() const { return events_ == kNoneEvent; }
+	size_t index() { return index_; }
+
+	void remove();
 
 private:
-	static const short int kNoneEvent;
-	static const short int kReadEvent;
-	static const short int kWriteEvent;
-
 	void update();
 
 	const int fd_;
 	short int events_;
 	short int revents_;
 	EventLoop* loop_;
-	unsigned long index_;
+	size_t index_;
 
 	ReadEventCallback read_cb_;
 	EventCallback write_cb_;

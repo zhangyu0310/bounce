@@ -38,3 +38,7 @@ void bounce::Channel::handleChannel(time_t recv_time) {
 void bounce::Channel::update() {
 	loop_->updateChannel(this);
 }
+
+void bounce::Channel::remove() {
+	loop_->removeChannel(this);
+}

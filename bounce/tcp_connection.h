@@ -13,12 +13,14 @@
 #ifndef BOUNCE_TCPCONNECTION_H
 #define BOUNCE_TCPCONNECTION_H
 
+#include <any/any.hpp>
 #include <functional>
 #include <memory>
 
 #include <bounce/buffer.h>
 #include <bounce/channel.h>
 #include <bounce/socket.h>
+#include <bounce/logger.h>
 
 namespace bounce {
 
@@ -29,27 +31,54 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
 	typedef std::function<void(const TcpConnectionPtr&)> ConnectionCallback;
 	typedef std::function<void(const TcpConnectionPtr&)> CloseCallback;
 	typedef std::function<void(const TcpConnectionPtr&)> WriteCompleteCallback;
+	typedef std::function<void(const TcpConnectionPtr&)> ErrorCallback;
 	typedef std::function<void(const TcpConnectionPtr&, Buffer*, time_t)> MessageCallback;
 public:
+	enum ConnectState {
+		connecting,
+		connected,
+		disconnecting,
+		disconnected };
+public:
 	TcpConnection(EventLoop* loop, int fd);
-	// ~TcpConnection();
+	~TcpConnection() = default;
 	TcpConnection(const TcpConnection&) = delete;
 	TcpConnection& operator=(const TcpConnection&) = delete;
-	EventLoop* getLoop() const { return loop_; }
 
-	void setConnectCallback(const ConnectionCallback& cb)
-	{ connect_cb_ = cb; }
-	void setMessageCallback(const MessageCallback& cb)
-	{ message_cb_ = cb; }
-	void setWriteCompleteCallback(const WriteCompleteCallback& cb)
-	{ write_cb_ = cb; }
-	void setCloseCallback(const CloseCallback& cb) 
-	{ close_cb_ = cb; }
+	EventLoop* getLoop() const { return loop_; }
+	int getFd() const { return socket_->fd(); }
+	ConnectState state() const { return state_; }
+
+	void setConnectCallback(const ConnectionCallback& cb) {
+		connect_cb_ = cb;
+	}
+	void setMessageCallback(const MessageCallback& cb) {
+		message_cb_ = cb;
+	}
+	void setWriteCompleteCallback(const WriteCompleteCallback& cb) {
+		write_cb_ = cb;
+	}
+	void setCloseCallback(const CloseCallback& cb) {
+		close_cb_ = cb;
+	}
+	void setErrorCallback(const ErrorCallback& cb) {
+		error_cb_ = cb;
+	}
 
 	void connectComplete();
-	// void disconnectComplete();
+	void destroyConnection();
 
 	void send(const std::string& message);
+	void sendInLoop(const std::string& message);
+	void shutdown();
+	void shutdownInLoop();
+
+	void setContext(const linb::any& context) {
+		context_ = context;
+	}
+	const linb::any& getContext() const {
+		return context_;
+	}
 
 private:
 	void handleRead(time_t time);
@@ -57,7 +86,7 @@ private:
 	void handleClose();
 	void handleError();
 
-	// FIXME: State of connection.
+	ConnectState state_;
 	EventLoop* loop_;
 	std::unique_ptr<Socket> socket_;
 	std::unique_ptr<Channel> channel_;
@@ -67,9 +96,11 @@ private:
 	MessageCallback message_cb_;
 	WriteCompleteCallback write_cb_;
 	CloseCallback close_cb_;
-	// error_cb_;
-	//FIXME: add context. Type: std::any
+	ErrorCallback error_cb_;
+	//TODO: add context. Type: std::any
+	// This is from C++17 not 11.
 	// std::any context_;
+	linb::any context_;
 };
 
 } // namespace bounce

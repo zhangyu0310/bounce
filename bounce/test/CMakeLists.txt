@@ -22,3 +22,11 @@ target_link_libraries(tcpconnection_test pthread)
 add_executable(tcpserver_test tcpserver_test.cc)
 target_link_libraries(tcpserver_test bounce)
 target_link_libraries(tcpserver_test pthread)
+
+add_executable(shutdown_test shutdown_test.cc)
+target_link_libraries(shutdown_test bounce)
+target_link_libraries(shutdown_test pthread)
+
+add_executable(echo_bench echo_bench.cc)
+target_link_libraries(echo_bench bounce)
+target_link_libraries(echo_bench pthread)

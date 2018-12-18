@@ -49,13 +49,17 @@ void bounce::EventLoop::loop() {
 			cur_channel_ = *it;
 			cur_channel_->handleChannel(recv_time);
 		}
-		cur_channel_ = NULL;
+		cur_channel_ = nullptr;
 		doTheTasks();
 	}
 }
 
 void bounce::EventLoop::updateChannel(Channel* channel) {
 	poller_->updateChannel(channel);
+}
+
+void bounce::EventLoop::removeChannel(Channel* channel) {
+	poller_->removeChannel(channel);
 }
 
 void bounce::EventLoop::doTheTasks() {
@@ -65,7 +69,7 @@ void bounce::EventLoop::doTheTasks() {
 		std::lock_guard<std::mutex> guard(mutex_);
 		task_vec_.swap(tmp_vec);
 	}
-	for (auto task : tmp_vec) {
+	for (auto& task : tmp_vec) {
 		task();
 	}
 	doing_the_tasks_ = false;

@@ -26,12 +26,15 @@ class EventLoop;
 
 class PollPoller : public Poller {
 public:
-	PollPoller(EventLoop* loop) : Poller(loop) {}
-	~PollPoller() {}
+	explicit  PollPoller(EventLoop* loop) :
+		Poller(loop) {}
+	~PollPoller() final = default;
+	PollPoller(const PollPoller&) = delete;
+	PollPoller& operator=(const PollPoller&) = delete;
 
-	std::time_t poll(int timeout, ChannelList* active_channels);
-	void updateChannel(Channel* channel);
-	void removeChannel(Channel* channel);
+	std::time_t poll(int timeout, ChannelList* active_channels) final;
+	void updateChannel(Channel* channel) final;
+	void removeChannel(Channel* channel) final;
 
 private:
 	std::vector<struct pollfd> pollfds_;

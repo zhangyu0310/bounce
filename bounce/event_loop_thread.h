@@ -6,7 +6,7 @@
 * This file is head file of the EventLoopThread.
 * This is an internal header file, users should not include this.
 *
-* Use of this source code is governed by the GNU Lesser General Public.
+* Distributed under the MIT License (http://opensource.org/licenses/MIT)
 */
 
 #ifndef BOUNCE_EVENT_LOOP_THREAD_H

@@ -6,7 +6,7 @@
 * This file is some function implementation of Socket.
 * A socket object is a encapsulation of file descriptor.
 *
-* Use of this source code is governed by the GNU Lesser General Public.
+* Distributed under the MIT License (http://opensource.org/licenses/MIT)
 */
 
 #include <bounce/socket.h>

@@ -5,7 +5,7 @@
 *
 * This file is some function implementation of TcpConnection.
 *
-* Use of this source code is governed by the GNU Lesser General Public.
+* Distributed under the MIT License (http://opensource.org/licenses/MIT)
 */
 
 #include <bounce/tcp_server.h>

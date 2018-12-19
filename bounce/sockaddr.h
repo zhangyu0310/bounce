@@ -6,7 +6,7 @@
 * This file is head file of the SockAddress.
 * This is an internal header file, users should not include this.
 *
-* Use of this source code is governed by the GNU Lesser General Public.
+* Distributed under the MIT License (http://opensource.org/licenses/MIT)
 */
 
 #ifndef BOUNCE_SOCKADDR_H

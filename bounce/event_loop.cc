@@ -6,7 +6,7 @@
 * This file is some function implementation of EventLoop.
 * It's a public class, users can use this class.
 *
-* Use of this source code is governed by the GNU Lesser General Public.
+* Distributed under the MIT License (http://opensource.org/licenses/MIT)
 */
 
 #include <bounce/event_loop.h>

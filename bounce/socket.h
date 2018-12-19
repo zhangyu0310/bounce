@@ -7,7 +7,7 @@
 * This is an internal header file, users should not include this.
 * A socket object is a encapsulation of file descriptor.
 *
-* Use of this source code is governed by the GNU Lesser General Public.
+* Distributed under the MIT License (http://opensource.org/licenses/MIT)
 */
 
 #ifndef BOUNCE_SOCKET_H

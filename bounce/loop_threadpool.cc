@@ -5,7 +5,7 @@
 *
 * This file is some function implementation of LoopThreadPool.
 *
-* Use of this source code is governed by the GNU Lesser General Public.
+* Distributed under the MIT License (http://opensource.org/licenses/MIT)
 */
 
 #include <utility>

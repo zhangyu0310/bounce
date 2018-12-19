@@ -7,7 +7,7 @@
 * You must include this file if you want to use TcpConnection.
 * It's a public class, users can use this class.
 *
-* Use of this source code is governed by the GNU Lesser General Public.
+* Distributed under the MIT License (http://opensource.org/licenses/MIT)
 */
 
 #ifndef BOUNCE_TCPCONNECTION_H

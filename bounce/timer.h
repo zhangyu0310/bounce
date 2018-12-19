@@ -18,24 +18,32 @@
 namespace bounce {
 
 class Timer {
-    typedef std::chrono::system_clock::time_point TimePoint;
-    typedef std::chrono::milliseconds MilliSeconds;
+    typedef std::chrono::nanoseconds NanoSeconds;
+    typedef std::chrono::system_clock SystemClock;
+    typedef std::chrono::time_point<SystemClock, NanoSeconds> TimePoint;
     typedef std::function<void()> TimeOutCallback;
 public:
     Timer(const TimePoint& time,
-            const MilliSeconds& duration,
+            const NanoSeconds& duration,
             TimeOutCallback&& cb) :
-            time_(time),
+            expiration_(time),
             duration_(duration),
             time_out_cb_(std::move(cb))
     { }
     ~Timer() = default;
-    Timer(const Timer&) = delete;
-    Timer(Timer&&) = delete;
+    Timer(const Timer&) = default;
+    Timer(Timer&&) = default;
+
+    TimePoint expiration() { return expiration_; }
+    NanoSeconds duration() { return duration_; }
+    // duration is not zero, mean timer is a repeat timer.
+    bool repeat() { return duration_ != NanoSeconds::zero(); }
+    void execCallback() { time_out_cb_(); }
+    TimePoint timerUpdate(); // just for duration_ != zero
 
 private:
-    TimePoint time_;
-    MilliSeconds duration_;
+    TimePoint expiration_;
+    NanoSeconds duration_;
     TimeOutCallback time_out_cb_;
 };
 

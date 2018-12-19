@@ -9,3 +9,9 @@
 */
 
 #include <bounce/timer.h>
+
+bounce::Timer::TimePoint bounce::Timer::timerUpdate() {
+    if (duration_ != NanoSeconds::zero())
+        expiration_ += duration_;
+    return expiration_;
+}

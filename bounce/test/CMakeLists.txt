@@ -30,3 +30,7 @@ target_link_libraries(shutdown_test pthread)
 add_executable(echo_bench echo_bench.cc)
 target_link_libraries(echo_bench bounce)
 target_link_libraries(echo_bench pthread)
+
+add_executable(timer_test timer_test.cc)
+target_link_libraries(timer_test bounce)
+target_link_libraries(timer_test pthread)

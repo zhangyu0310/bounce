@@ -24,12 +24,19 @@
 #include <bounce/channel.h>
 #include <bounce/logger.h>
 #include <bounce/poller.h>
+#include <bounce/timer_queue.h>
 
 namespace bounce {
 
 class Channel;
 
 class EventLoop {
+public:
+	typedef std::chrono::nanoseconds NanoSeconds;
+	typedef std::chrono::system_clock SystemClock;
+	typedef std::chrono::time_point<SystemClock, NanoSeconds> TimePoint;
+	typedef std::function<void()> TimeOutCallback;
+	typedef std::shared_ptr<Timer> TimerPtr;
 	typedef std::function<void()> Functor;
 public:
 	EventLoop();
@@ -42,6 +49,12 @@ public:
 	void loop();
 	void updateChannel(Channel* channel);
 	void removeChannel(Channel* channel);
+
+	TimerPtr runAt(const TimePoint& expiration, TimeOutCallback&& cb);
+	TimerPtr runAfter(const NanoSeconds& delay, TimeOutCallback&& cb);
+	TimerPtr runAfter(long delay_ns, TimeOutCallback&& cb);
+	TimerPtr runEvery(const NanoSeconds& interval, TimeOutCallback&& cb);
+	void deleteTimer(TimerPtr timer_ptr);
 
 	void doTaskInThread(Functor& func);
 	void queueTaskInThread(Functor& func);
@@ -59,10 +72,15 @@ private:
 	std::thread::id thread_id_;
 	std::unique_ptr<Poller> poller_;
 
+	// for Poller
 	typedef std::list<Channel*> ChannelList;
 	ChannelList active_channels_;
 	Channel* cur_channel_;
 
+	// for timed task
+	std::unique_ptr<TimerQueue> timer_queue_;
+
+	// for async weak up
 	std::mutex mutex_;
 	std::vector<Functor> task_vec_;
 	int weakup_fd_;

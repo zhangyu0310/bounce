@@ -34,12 +34,24 @@ void read_cb(const std::shared_ptr<TcpConnection>& conn, Buffer* buffer, time_t 
     conn->send(message);
 }
 
-int main() {
+/*int main() {
     bounce::log_level = spdlog::level::err;
     EventLoop loop;
     TcpServer server(&loop, "127.0.0.1", 9999, 3);
     server.setConnectionCallback(conn_cb);
     server.setMessageCallback(read_cb);
+    server.start();
+    loop.loop();
+}*/
+
+int main() {
+    EventLoop loop; // base_loop
+    TcpServer server(&loop, "127.0.0.1", 9999, 3);
+    server.setMessageCallback([](
+            const TcpServer::TcpConnectionPtr& conn,
+            Buffer* buffer, time_t time) {
+        conn->send(buffer->readAllAsString());
+    });
     server.start();
     loop.loop();
 }

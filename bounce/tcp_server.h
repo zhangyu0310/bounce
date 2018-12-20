@@ -25,6 +25,7 @@ namespace bounce {
 class EventLoop;
 
 class TcpServer {
+public:
 	typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 	typedef std::function<void(EventLoop*)> ThreadInitCallback;
 	typedef std::function<void(const TcpConnectionPtr&)> ConnectionCallback;

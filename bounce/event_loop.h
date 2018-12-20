@@ -13,6 +13,7 @@
 #ifndef BOUNCE_EVENTLOOP_H
 #define BOUNCE_EVENTLOOP_H
 
+#include <any/any.hpp>
 #include <chrono>
 #include <functional>
 #include <list>
@@ -62,6 +63,13 @@ public:
 	void doTaskInThread(Functor&& func);
 	void queueTaskInThread(Functor&& func);
 
+    void setContext(const linb::any& context) {
+        context_ = context;
+    }
+    const linb::any& getContext() const {
+        return context_;
+    }
+
 private:
 	void doTheTasks();
 	void weakupCallback(time_t);
@@ -85,6 +93,10 @@ private:
 	std::vector<Functor> task_vec_;
 	int weakup_fd_;
 	std::unique_ptr<Channel> weak_up_channel_;
+    //TODO: add context. Type: std::any
+    // This is from C++17 not 11.
+    // std::any context_;
+    linb::any context_;
 };
 
 } // namespace bounce

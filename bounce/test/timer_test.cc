@@ -23,7 +23,7 @@ using namespace bounce;
 
 void time_to_send(const std::shared_ptr<TcpConnection>& conn) {
     spdlog::info("Hello! Timer");
-    conn->send("Hello! Timer!");
+    conn->send("Hello! Timer!\n");
 }
 
 std::vector<EventLoop::TimerPtr> timers;
@@ -36,11 +36,18 @@ void conn_cb(const std::shared_ptr<TcpConnection>& conn) {
         std::cout << "This thread_id is ";
         std::cout << std::this_thread::get_id() << std::endl;
         std::cout << std::endl;
-        std::chrono::seconds sec(2);
+        std::chrono::seconds sec(5);
         auto count = std::chrono::duration_cast<
                 EventLoop::NanoSeconds>(sec).count();
         std::cout << "The count is " << count << std::endl;
-        auto timer = loop->runEvery(
+        /*auto timer = loop->runEvery(
+                std::chrono::duration_cast<EventLoop::NanoSeconds>(sec),
+                std::bind(time_to_send, conn));*/
+        /*auto timer = loop->runAfter(
+                std::chrono::duration_cast<EventLoop::NanoSeconds>(sec),
+                std::bind(time_to_send, conn));*/
+        auto timer = loop->runAt(
+                std::chrono::system_clock::now() +
                 std::chrono::duration_cast<EventLoop::NanoSeconds>(sec),
                 std::bind(time_to_send, conn));
         timers.push_back(timer);

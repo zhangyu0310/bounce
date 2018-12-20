@@ -32,6 +32,7 @@ class TimerQueue {
     typedef std::chrono::time_point<SystemClock, NanoSeconds> TimePoint;
     typedef std::function<void()> TimeOutCallback;
     typedef std::shared_ptr<Timer> TimerPtr;
+    static const int NanoSecondsPerSecond = 1000000000;
 public:
     explicit TimerQueue(EventLoop* loop) :
         loop_(loop),

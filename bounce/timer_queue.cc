@@ -12,6 +12,7 @@
 #include <bounce/timer_queue.h>
 
 #include <utility>
+#include <vector>
 
 bounce::TimerQueue::TimerPtr bounce::TimerQueue::addTimer(
         const TimePoint& expiration,
@@ -74,11 +75,15 @@ void bounce::TimerQueue::handleRead(time_t) {
     timer_map_once_.erase(timer_map_once_.begin(), upper_it);
     // deal the repeat timer.
     upper_it = timer_map_repeat_.upper_bound(now);
+    std::vector<TimerPtr> to_update;
     for (auto it = timer_map_repeat_.begin(); it != upper_it; ++it) {
         it->second->execCallback();
-        auto timer = it->second;
-        auto new_time = timer->timerUpdate();
-        timer_map_repeat_.insert(std::make_pair(new_time, timer));
+        to_update.push_back(it->second);
+    }
+    timer_map_repeat_.erase(timer_map_repeat_.begin(), upper_it);
+    for (auto it : to_update) {
+        auto new_time = it->timerUpdate();
+        timer_map_repeat_.insert(std::make_pair(new_time, it));
     }
     resetTimerfd();
 }
@@ -100,10 +105,11 @@ void bounce::TimerQueue::resetTimerfd() {
         struct itimerspec new_value{timespec{0, 0}, timespec{0, 0}};
         struct itimerspec old_value{timespec{0, 0}, timespec{0, 0}};
         auto diff = min_expiration_ - std::chrono::system_clock::now();
-        if (diff.count() < 100) {
-            diff = NanoSeconds(1000);
+        if (diff < NanoSeconds(10000000)) { // 0.01ms
+            diff = NanoSeconds(10000000);
         }
-        new_value.it_value.tv_nsec = diff.count();
+        new_value.it_value.tv_sec = diff.count() / NanoSecondsPerSecond;
+        new_value.it_value.tv_nsec = diff.count() % NanoSecondsPerSecond;
         // old_value can be nullptr, we don't care.
         int ret = ::timerfd_settime(timer_fd_, 0, &new_value, &old_value);
         if (ret != 0) {

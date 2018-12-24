@@ -23,7 +23,6 @@ namespace bounce {
 void logSysInit() {
     try {
         auto console = spdlog::stdout_color_mt("bounce_console");
-        console->info("Bounce library is servicing.");
         if (nullptr == opendir(log_path.c_str())) {
             if (-1 == mkdir(log_path.c_str(),
                             S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
@@ -37,7 +36,6 @@ void logSysInit() {
         async_file->set_level(log_level);
         async_file->flush_on(log_flush_level);
         async_file->info("Bounce library is servicing.");
-        console->info("In logConfig");
     } catch (const spdlog::spdlog_ex &ex) {
         std::cout << "Log init failed: " << ex.what() << std::endl;
         exit(1);

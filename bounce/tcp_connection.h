@@ -13,6 +13,7 @@
 #ifndef BOUNCE_TCPCONNECTION_H
 #define BOUNCE_TCPCONNECTION_H
 
+#include <atomic>
 #include <any/any.hpp>
 #include <functional>
 #include <memory>
@@ -72,6 +73,9 @@ public:
 	void sendInLoop(const std::string& message);
 	void shutdown();
 	void shutdownInLoop();
+	void forceClose();
+	//void forceCloseDelay(size_t seconds);
+	void forceCloseInLoop();
 
 	void setContext(const linb::any& context) {
 		context_ = context;
@@ -86,7 +90,7 @@ private:
 	void handleClose();
 	void handleError();
 
-	ConnectState state_;
+	std::atomic<ConnectState> state_;
 	EventLoop* loop_;
 	std::unique_ptr<Socket> socket_;
 	std::unique_ptr<Channel> channel_;

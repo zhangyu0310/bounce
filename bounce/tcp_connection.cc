@@ -108,16 +108,43 @@ void bounce::TcpConnection::sendInLoop(const std::string& message) {
 }
 
 void bounce::TcpConnection::shutdown() {
-    loop_->doTaskInThread(std::bind(
-            &TcpConnection::shutdownInLoop, this));
+    if (state_ != disconnected) {
+        state_ = disconnecting;
+        loop_->doTaskInThread(std::bind(
+                &TcpConnection::shutdownInLoop, this));
+    }
 }
 
 void bounce::TcpConnection::shutdownInLoop() {
-    state_ = disconnecting;
     // something in the output_buffer, wait until they are sent.
     if (!channel_->isWriting()) {
         socket_->shutdownWrite();
     }
+}
+
+void bounce::TcpConnection::forceClose() {
+    if (state_ != disconnected) {
+        state_ = disconnecting;
+        // must be shared_from_this()
+        loop_->doTaskInThread(
+                std::bind(&TcpConnection::forceCloseInLoop,
+                        shared_from_this()));
+    }
+}
+
+/*void bounce::TcpConnection::forceCloseDelay(size_t seconds) {
+    if (state_ != disconnected) {
+        loop_->runAfter(
+                std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::seconds(seconds)),
+                std::bind(&TcpConnection::forceCloseInLoop,
+                          shared_from_this()));
+    }
+}*/
+
+void bounce::TcpConnection::forceCloseInLoop() {
+    if (state_ != disconnected)
+        handleClose();
 }
 
 void bounce::TcpConnection::handleRead(time_t time) {

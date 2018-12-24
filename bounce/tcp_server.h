@@ -47,17 +47,28 @@ public:
 
 	void start();
 	void setThreadNumber(uint32_t num);
-	void setThreadInitCallback(const ThreadInitCallback& cb)
-	{ thread_init_cb_ = cb; }
-	void setConnectionCallback(const ConnectionCallback& cb)
-	{ connect_cb_ = cb; }
-	void setMessageCallback(const MessageCallback& cb)
-	{ message_cb_ = cb; }
-	void setWriteCompleteCallback(const WriteCompleteCallback& cb)
-	{ write_cb_ = cb; }
+	void setThreadInitCallback(const ThreadInitCallback& cb) { 
+	    thread_init_cb_ = cb; 
+	}
+	void setConnectionCallback(const ConnectionCallback& cb){ 
+	    connect_cb_ = cb; 
+	}
+	void setMessageCallback(const MessageCallback& cb) { 
+	    message_cb_ = cb; 
+	}
+	void setWriteCompleteCallback(const WriteCompleteCallback& cb) { 
+	    write_cb_ = cb; 
+	}
+	void setNewConnection(int fd, const SockAddress& addr) {
+		newConnection(fd, addr);
+	}
 
-	uint32_t getThreadNumber()
-	{ return thread_pool_->getThreadNumber(); }
+	uint32_t getThreadNumber() { 
+	    return thread_pool_->getThreadNumber(); 
+	}
+	bool started() {
+	    return started_;
+	}
 	
 private:
 	void newConnection(int fd, const SockAddress& addr);

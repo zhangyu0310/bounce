@@ -29,6 +29,7 @@ public:
 	SockAddress& operator=(const SockAddress&) = default;
 
 	sockaddr* inetAddr() { return (sockaddr*)&addr_; }
+	const sockaddr* constInetAddr() const { return (sockaddr*)&addr_; }
 	socklen_t size() const { return sizeof(addr_); }
 
 private:

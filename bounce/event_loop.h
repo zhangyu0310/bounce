@@ -13,6 +13,7 @@
 #ifndef BOUNCE_EVENTLOOP_H
 #define BOUNCE_EVENTLOOP_H
 
+#include <atomic>
 #include <any/any.hpp>
 #include <chrono>
 #include <functional>
@@ -76,7 +77,7 @@ private:
 
 	bool looping_;
 	bool stop_;
-	bool doing_the_tasks_;
+	std::atomic<bool> doing_the_tasks_;
 	std::thread::id thread_id_;
 	std::unique_ptr<Poller> poller_;
 

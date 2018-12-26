@@ -70,6 +70,11 @@ std::string bounce::Buffer::readAsString(size_t size) {
 		read_bytes = readableBytes();
 	}
 	str.append(&buffer_[read_index_], read_bytes);
-	read_index_ += read_bytes;
+	if (read_bytes == readableBytes()) {
+		// read all, there is nothing in buffer. So reset the buffer.
+		read_index_ = write_index_ = 0;
+	} else {
+		read_index_ += read_bytes;
+	}
 	return str;
 }

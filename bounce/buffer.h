@@ -50,10 +50,27 @@ public:
 
 	// Peek
 	const char* peek() { return buffer_.data() + read_index_; }
-	// TODO: some buffer function
-	//int8_t peekInt8();
-	//int16_t peekInt16();
-	//int32_t peekInt32();
+	int8_t peekInt8() {
+		if (read_index_ + 1 > write_index_) {
+			return 0;
+		}
+		const void* ptr = peek();
+		return *static_cast<const int8_t*>(ptr);
+	}
+	int16_t peekInt16() {
+		if (read_index_ + 2 > write_index_) {
+			return 0;
+		}
+		const void* ptr = peek();
+		return *static_cast<const int16_t*>(ptr);
+	}
+	int32_t peekInt32() {
+		if (read_index_ + 4 > write_index_) {
+			return 0;
+		}
+		const void* ptr = peek();
+		return *static_cast<const int32_t*>(ptr);
+	}
 	//int64_t peekInt64();
 
 	// Input
@@ -82,10 +99,28 @@ public:
 			read_index_ = write_index_ = 0;
 		}
 	}
-	// TODO: some buffer function
-	//int8_t readInt8();
-	//int16_t readInt16();
-	//int32_t readInt32();
+	// unsafe
+	int8_t readInt8() {
+		if (1 > readableBytes()) {
+			return 0;
+		}
+		read_index_ += 1;
+		return peekInt8();
+	}
+	int16_t readInt16() {
+		if (2 > readableBytes()) {
+			return 0;
+		}
+		read_index_ += 2;
+		return peekInt16();
+	}
+	int32_t readInt32() {
+		if (4 > readableBytes()) {
+			return 0;
+		}
+		read_index_ += 4;
+		return peekInt32();
+	}
 	//readInt64();
 
 private:
@@ -93,8 +128,8 @@ private:
 
 	ssize_t init_size_;
 	std::vector<char> buffer_;
-	SizeType read_index_;
-	SizeType write_index_;
+	SizeType read_index_;  // read from this index
+	SizeType write_index_; // the next insert index
 };
 
 }

@@ -59,6 +59,9 @@ public:
 	void setWriteCompleteCallback(const WriteCompleteCallback& cb) { 
 	    write_cb_ = cb; 
 	}
+	void setErrorCallback(const ErrorCallback& cb) {
+		error_cb_ = cb;
+	}
 	void setNewConnection(int fd, const SockAddress& addr) {
 		newConnection(fd, addr);
 	}

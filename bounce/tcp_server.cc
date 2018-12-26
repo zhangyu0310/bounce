@@ -82,7 +82,8 @@ void bounce::TcpServer::removeConnectionInLoop(
     auto it = connection_map_.find(conn->getFd());
     if (it != connection_map_.end()) {
         connection_map_.erase(it);
-        conn->getLoop()->doTaskInThread(
+        // If there is only one thread, must use queueTaskInThread.
+        conn->getLoop()->queueTaskInThread(
                 std::bind(&TcpConnection::destroyConnection, conn));
     } else {
         Logger::get("bounce_file_log")->error(

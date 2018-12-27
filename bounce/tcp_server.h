@@ -63,7 +63,8 @@ public:
 		error_cb_ = cb;
 	}
 	void setNewConnection(int fd, const SockAddress& addr) {
-		newConnection(fd, addr);
+		loop_->queueTaskInThread(std::bind(
+		        &TcpServer::newConnection, this, fd, addr));
 	}
 
 	uint32_t getThreadNumber() { 

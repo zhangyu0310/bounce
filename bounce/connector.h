@@ -26,7 +26,7 @@ class EventLoop;
 class TcpServer;
 
 class Connector {
-    typedef std::function<void(SockAddress)> ErrorCallback;
+    typedef std::function<void(SockAddress, int)> ErrorCallback;
     typedef std::shared_ptr<Channel> ChannelPtr;
 public:
     Connector(EventLoop* loop, TcpServer* server);

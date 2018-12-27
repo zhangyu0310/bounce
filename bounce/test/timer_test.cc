@@ -36,7 +36,7 @@ void conn_cb(const std::shared_ptr<TcpConnection>& conn) {
         std::cout << "This thread_id is ";
         std::cout << std::this_thread::get_id() << std::endl;
         std::cout << std::endl;
-        std::chrono::microseconds micro_sec(1);
+        std::chrono::microseconds micro_sec(1000);
         /*auto count = std::chrono::duration_cast<
                 EventLoop::NanoSeconds>(micro_sec).count();
         std::cout << "The count is " << count << std::endl;*/
@@ -80,7 +80,7 @@ int main() {
             "file:{}, line:{}, function:{}  I am in main",
             FILENAME(__FILE__), __LINE__, __FUNCTION__);
     EventLoop loop;
-    TcpServer server(&loop, "127.0.0.1", 9281, 3);
+    TcpServer server(&loop, "127.0.0.1", 9282, 3);
     server.setConnectionCallback(conn_cb);
     server.setMessageCallback(read_cb);
     server.setWriteCompleteCallback(write_cb);

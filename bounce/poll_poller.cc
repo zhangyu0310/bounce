@@ -79,14 +79,13 @@ void bounce::PollPoller::removeChannel(Channel* channel) {
 	if (it != channels_.end()) {
 		channels_.erase(it);
 		unsigned long idx = channel->index();
-		auto last = pollfds_.size();
+		auto last = pollfds_.size() - 1;
 		// if idx == last - 1 pop_back directly.
-		if (idx != last - 1) {
+		if (idx != last) {
 			// Give last channel the drop index.
 			// Fill in space.
-			channels_[last - 1]->setIndex(idx);
-			std::iter_swap(&pollfds_[idx], &pollfds_[last - 1]);
-			pollfds_.pop_back();
+			channels_[pollfds_[last].fd]->setIndex(idx);
+			std::iter_swap(&pollfds_[idx], &pollfds_[last]);
 		}
 		pollfds_.pop_back();
 	} else {

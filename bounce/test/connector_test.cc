@@ -25,12 +25,14 @@ void read_cb(const std::shared_ptr<TcpConnection>& conn, Buffer* buffer, time_t 
 
 int main() {
     EventLoop loop;
-    TcpServer server(&loop, "127.0.0.1", 9999, 3);
+    TcpServer server(&loop, "127.0.0.1", 9999, 1);
     server.setConnectionCallback(conn_cb);
     server.setMessageCallback(read_cb);
     Connector connector(&loop, &server);
     SockAddress addr("127.0.0.1", 9281);
+    SockAddress addr2("127.0.0.1", 9282);
     server.start();
     connector.connect(addr);
+    connector.connect(addr2);
     loop.loop();
 }

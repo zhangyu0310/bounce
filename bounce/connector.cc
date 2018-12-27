@@ -86,7 +86,9 @@ void bounce::Connector::handleWrite(int fd, const bounce::SockAddress& addr) {
             tcp_server_->setNewConnection(fd, addr);
         } else {
             ::close(fd);
-            error_cb_(addr);
+            if (error_cb_) {
+                error_cb_(addr);
+            }
         }
     }
 }

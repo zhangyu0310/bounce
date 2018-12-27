@@ -216,7 +216,8 @@ void bounce::TcpConnection::handleClose() {
 	channel_->disableAll();
 	// The last life of this connection.
 	auto last_life(shared_from_this());
-	connect_cb_(last_life);
+	if (connect_cb_)
+	    connect_cb_(last_life);
 	close_cb_(last_life);
 }
 

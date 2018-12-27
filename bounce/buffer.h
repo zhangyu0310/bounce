@@ -21,6 +21,9 @@ extern ssize_t BUFFER_INIT_SIZE;
 
 class Buffer {
 	typedef std::vector<char>::size_type SizeType;
+	const size_t kInt8Size = 1;
+	const size_t kInt16Size = 2;
+	const size_t kInt32Size = 4;
 public:
 	Buffer() :
 	    init_size_(BUFFER_INIT_SIZE),
@@ -43,7 +46,19 @@ public:
 		read_index_(buf.read_index_),
 		write_index_(buf.write_index_) {
 	}
-	// TODO: copy operator?
+	Buffer& operator=(const Buffer& buffer) {
+		if (&buffer == this) {
+			return *this;
+		}
+		init_size_ = buffer.init_size_;
+		buffer_.clear();
+		for (auto it : buffer.buffer_) {
+			buffer_.push_back(it);
+		}
+		read_index_ = buffer.read_index_;
+		write_index_ = buffer.write_index_;
+		return *this;
+	}
 
 	size_t readableBytes() { return write_index_ - read_index_; }
 	size_t writeableBytes() { return buffer_.size() - write_index_; }
@@ -51,27 +66,26 @@ public:
 	// Peek
 	const char* peek() { return buffer_.data() + read_index_; }
 	int8_t peekInt8() {
-		if (read_index_ + 1 > write_index_) {
+		if (read_index_ + kInt8Size > write_index_) {
 			return 0;
 		}
 		const void* ptr = peek();
 		return *static_cast<const int8_t*>(ptr);
 	}
 	int16_t peekInt16() {
-		if (read_index_ + 2 > write_index_) {
+		if (read_index_ + kInt16Size > write_index_) {
 			return 0;
 		}
 		const void* ptr = peek();
 		return *static_cast<const int16_t*>(ptr);
 	}
 	int32_t peekInt32() {
-		if (read_index_ + 4 > write_index_) {
+		if (read_index_ + kInt32Size > write_index_) {
 			return 0;
 		}
 		const void* ptr = peek();
 		return *static_cast<const int32_t*>(ptr);
 	}
-	//int64_t peekInt64();
 
 	// Input
 	void append(const std::string& src) {
@@ -79,11 +93,18 @@ public:
 	}
 	void append(const char* src, size_t len);
 	ssize_t readFd(int fd, int* errorno);
-	// TODO: some buffer function
-	//void writeInt8();
-	//void writeInt16();
-	//void writeInt32();
-	//void writeInt64();
+	void writeInt8(int8_t num) {
+		void* num_ptr = &num;
+		append(static_cast<char*>(num_ptr), kInt8Size);
+	}
+	void writeInt16(int16_t num) {
+		void* num_ptr = &num;
+		append(static_cast<char*>(num_ptr), kInt16Size);
+	}
+	void writeInt32(int32_t num) {
+		void* num_ptr = &num;
+		append(static_cast<char*>(num_ptr), kInt32Size);
+	}
 
 	// Output
 	std::string readAllAsString() {
@@ -101,27 +122,26 @@ public:
 	}
 	// unsafe
 	int8_t readInt8() {
-		if (1 > readableBytes()) {
+		if (kInt8Size > readableBytes()) {
 			return 0;
 		}
-		read_index_ += 1;
+		read_index_ += kInt8Size;
 		return peekInt8();
 	}
 	int16_t readInt16() {
-		if (2 > readableBytes()) {
+		if (kInt16Size > readableBytes()) {
 			return 0;
 		}
-		read_index_ += 2;
+		read_index_ += kInt16Size;
 		return peekInt16();
 	}
 	int32_t readInt32() {
-		if (4 > readableBytes()) {
+		if (kInt32Size > readableBytes()) {
 			return 0;
 		}
-		read_index_ += 4;
+		read_index_ += kInt16Size;
 		return peekInt32();
 	}
-	//readInt64();
 
 private:
 	void makeSpace(size_t len);

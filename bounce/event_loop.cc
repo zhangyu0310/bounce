@@ -43,7 +43,6 @@ void bounce::EventLoop::loop() {
 	looping_ = true;
 	while (!stop_) {
 		active_channels_.clear();
-		// TODO: timeout can be set.
 		time_t recv_time = poller_->poll(-1, &active_channels_);
 		for (auto it = active_channels_.begin();
 			it != active_channels_.end(); ++it) {

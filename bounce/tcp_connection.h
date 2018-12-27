@@ -70,6 +70,7 @@ public:
 	void destroyConnection();
 
 	void send(const std::string& message);
+	void send(Buffer& buffer);
 	void sendInLoop(const std::string& message);
 	void shutdown();
 	void shutdownInLoop();

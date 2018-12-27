@@ -44,8 +44,20 @@ void bounce::TcpConnection::destroyConnection() {
 
 // Why must send in loop. If two loop want to send to this connection
 // together. We must ensure the order of send. So must in a loop.
-void bounce::TcpConnection::send(const std::string &message) {
+void bounce::TcpConnection::send(const std::string& message) {
     if (state_ == connected) {
+        loop_->doTaskInThread(std::bind(
+                &TcpConnection::sendInLoop, this, message));
+    } else {
+        Logger::get("bounce_file_log")->info(
+                "file:{}, line:{}, function:{}  Connection is over, can't send.",
+                FILENAME(__FILE__), __LINE__, __FUNCTION__);
+    }
+}
+
+void bounce::TcpConnection::send(Buffer& buffer) {
+    if (state_ == connected) {
+        std::string message = buffer.readAllAsString();
         loop_->doTaskInThread(std::bind(
                 &TcpConnection::sendInLoop, this, message));
     } else {
@@ -99,7 +111,8 @@ void bounce::TcpConnection::sendInLoop(const std::string& message) {
     }
 
     if (!send_error && send_bytes > 0) {
-        const char* str = message.c_str();
+        //const char* str = message.c_str();
+        const char* str = message.data();
         output_buffer_.append(str + wrote_bytes, send_bytes);
         if (!channel_->isWriting()) {
             channel_->enableWriting();

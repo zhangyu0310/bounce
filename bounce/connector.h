@@ -30,6 +30,9 @@ class Connector {
     typedef std::shared_ptr<Channel> ChannelPtr;
 public:
     Connector(EventLoop* loop, TcpServer* server);
+    Connector(const Connector&) = delete;
+    Connector& operator=(const Connector&) = delete;
+
     void connect(const SockAddress& addr);
     void connectInLoop(const SockAddress& addr);
 

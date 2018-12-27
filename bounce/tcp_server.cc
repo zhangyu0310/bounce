@@ -57,6 +57,7 @@ void bounce::TcpServer::newConnection(int fd, const SockAddress& addr) {
 				FILENAME(__FILE__), __LINE__, __FUNCTION__);
 	    conn_loop = loop_;
 	}
+	// FIXME:The SockAddress addr should be set into TcpConnnection.
 	std::shared_ptr<TcpConnection> conn(
 	        new TcpConnection(conn_loop, fd));
 	conn->setConnectCallback(connect_cb_);

@@ -52,6 +52,8 @@ public:
                         this, std::placeholders::_1));
         timer_channel_.enableReading();
     }
+    TimerQueue(const TimerQueue&) = delete;
+    TimerQueue& operator=(const TimerQueue&) = delete;
 
     TimerPtr addTimer(const TimePoint&,
             const NanoSeconds&,

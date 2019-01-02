@@ -20,13 +20,15 @@ bounce::LoopThreadPool::LoopThreadPool(
         started_(false),
         base_loop_(loop),
         thread_num_(thread_num),
-        next_loop_index_(0) { }
+        next_loop_index_(0),
+        loop_inited_(false) { }
 
 void bounce::LoopThreadPool::threadLoop() {
     EventLoop event_loop;
     {
         std::lock_guard<std::mutex> guard(mutex_);
         loops_.push_back(&event_loop);
+        condition_.notify_one();
     }
     if (thread_cb_ != nullptr) {
         thread_cb_(&event_loop);
@@ -42,7 +44,11 @@ void bounce::LoopThreadPool::start() {
         EventLoopThreadPtr loop_thread(
                new EventLoopThread(std::bind(&LoopThreadPool::threadLoop, this)));
         loop_thread->run();
-        threads_.push_back(loop_thread);
+        {
+            std::unique_lock<std::mutex> lock(mutex_);
+            condition_.wait(lock, [this]{ return loop_inited_.load(); });
+            threads_.push_back(loop_thread);
+        }
     }
 }
 

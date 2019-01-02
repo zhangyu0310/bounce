@@ -12,8 +12,11 @@
 #ifndef BOUNCE_LOOP_THREADPOOL_H
 #define BOUNCE_LOOP_THREADPOOL_H
 
+#include <atomic>
 #include <functional>
 #include <memory>
+#include <mutex>
+#include <condition_variable>
 #include <thread>
 #include <vector>
 
@@ -48,6 +51,8 @@ private:
     InitThreadCallback thread_cb_;
     std::vector<EventLoopThreadPtr> threads_;
     std::mutex mutex_;
+    std::atomic<bool> loop_inited_;
+    std::condition_variable condition_;
     std::vector<EventLoop*> loops_;
 };
 

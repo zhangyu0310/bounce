@@ -28,6 +28,7 @@ void bounce::LoopThreadPool::threadLoop() {
     {
         std::lock_guard<std::mutex> guard(mutex_);
         loops_.push_back(&event_loop);
+        loop_inited_ = true;
         condition_.notify_one();
     }
     if (thread_cb_ != nullptr) {
@@ -48,6 +49,7 @@ void bounce::LoopThreadPool::start() {
             std::unique_lock<std::mutex> lock(mutex_);
             condition_.wait(lock, [this]{ return loop_inited_.load(); });
             threads_.push_back(loop_thread);
+            loop_inited_ = false;
         }
     }
 }

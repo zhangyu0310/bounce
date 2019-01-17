@@ -17,10 +17,8 @@
 // The size 5 is a recommended value.
 static const int LISTEN_SIZE = 5;
 
-// IPv4 only
-void bounce::Socket::bind(SockAddress& addr) {
-	// TODO: support IPv6
-	if (::bind(fd_, addr.inetAddr(), addr.size()) != 0) {
+void bounce::Socket::bind(const SockAddress& addr) {
+	if (::bind(fd_, addr.constInetAddr(), addr.size()) != 0) {
 		Logger::get("bounce_file_log")->critical(
 				"file:{}, line:{}, function:{}  bind failed. errno is {}",
 				FILENAME(__FILE__), __LINE__, __FUNCTION__, errno);

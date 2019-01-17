@@ -25,6 +25,9 @@
 
 namespace bounce {
 
+SockAddress getLocalAddr(int fd);
+SockAddress getPeerAddr(int fd);
+
 class EventLoop;
 
 class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
@@ -41,7 +44,7 @@ public:
 		disconnecting,
 		disconnected };
 public:
-	TcpConnection(EventLoop* loop, int fd);
+	TcpConnection(EventLoop* loop, int fd, SockAddress local, SockAddress peer);
 	~TcpConnection() = default;
 	TcpConnection(const TcpConnection&) = delete;
 	TcpConnection& operator=(const TcpConnection&) = delete;
@@ -49,6 +52,8 @@ public:
 	EventLoop* getLoop() const { return loop_; }
 	int getFd() const { return socket_->fd(); }
 	ConnectState state() const { return state_; }
+	SockAddress local_addr() { return local_addr_; }
+	SockAddress peer_addr() { return peer_addr_; }
 
 	void setConnectCallback(const ConnectionCallback& cb) {
 		connect_cb_ = cb;
@@ -97,6 +102,8 @@ private:
 	std::unique_ptr<Channel> channel_;
 	Buffer input_buffer_;
 	Buffer output_buffer_;
+	SockAddress local_addr_;
+	SockAddress peer_addr_;
 	ConnectionCallback connect_cb_;
 	MessageCallback message_cb_;
 	WriteCompleteCallback write_cb_;

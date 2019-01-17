@@ -87,8 +87,7 @@ void bounce::Connector::handleWrite(int fd, const bounce::SockAddress& addr) {
         } else {
             ::close(fd);
             if (error_cb_) {
-                int err = errno;
-                error_cb_(addr, err);
+                error_cb_(addr, error);
             }
         }
     }

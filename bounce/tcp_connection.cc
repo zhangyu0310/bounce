@@ -11,14 +11,44 @@
 #include <bounce/channel.h>
 #include <bounce/event_loop.h>
 #include <bounce/socket.h>
+#include <bounce/sockaddr.h>
 #include <bounce/tcp_connection.h>
 
+bounce::SockAddress bounce::getLocalAddr(int fd) {
+    SockAddress addr;
+    socklen_t len = addr.size();
+    if (::getsockname(fd, addr.inetAddr(), &len) < 0) {
+        Logger::get("bounce_file_log")->error(
+                "file:{}, line:{}, function:{} "
+                "getsockname < 0",
+                FILENAME(__FILE__), __LINE__, __FUNCTION__);
+    }
+    return addr;
+}
 
-bounce::TcpConnection::TcpConnection(EventLoop* loop, int fd) :
+bounce::SockAddress bounce::getPeerAddr(int fd) {
+    SockAddress addr;
+    socklen_t len = addr.size();
+    if (::getpeername(fd, addr.inetAddr(), &len) < 0) {
+        Logger::get("bounce_file_log")->error(
+                "file:{}, line:{}, function:{} "
+                "getpeername < 0",
+                FILENAME(__FILE__), __LINE__, __FUNCTION__);
+    }
+    return addr;
+}
+
+bounce::TcpConnection::TcpConnection(
+        EventLoop* loop,
+        int fd,
+        SockAddress local,
+        SockAddress peer) :
     state_(connecting),
 	loop_(loop),
 	socket_(new Socket(fd)),
 	channel_(new Channel(loop, fd)),
+	local_addr_(local),
+	peer_addr_(peer),
 	context_()
 {
 	channel_->setReadCallback(std::bind(&TcpConnection::handleRead, this, std::placeholders::_1));

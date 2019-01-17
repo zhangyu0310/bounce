@@ -23,12 +23,17 @@ void read_cb(const std::shared_ptr<TcpConnection>& conn, Buffer* buffer, time_t 
     conn->send(message);
 }
 
+void conn_err(SockAddress addr, int err) {
+    spdlog::error("Connector error, errno is {}", err);
+}
+
 int main() {
     EventLoop loop;
     TcpServer server(&loop, "127.0.0.1", 9999, 1);
     server.setConnectionCallback(conn_cb);
     server.setMessageCallback(read_cb);
     Connector connector(&loop, &server);
+    connector.setErrorCallback(conn_err);
     SockAddress addr("127.0.0.1", 9281);
     SockAddress addr2("127.0.0.1", 9282);
     server.start();

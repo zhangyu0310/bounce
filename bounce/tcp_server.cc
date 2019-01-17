@@ -39,7 +39,6 @@ void bounce::TcpServer::setThreadNumber(uint32_t num) {
 	if (!started_) {
 		thread_pool_->setThreadNumber(num);
 	}
-	// TODO: started can add threads. (but can't delete)
 }
 
 void bounce::TcpServer::newConnection(int fd, const SockAddress& addr) {
@@ -57,9 +56,9 @@ void bounce::TcpServer::newConnection(int fd, const SockAddress& addr) {
 				FILENAME(__FILE__), __LINE__, __FUNCTION__);
 	    conn_loop = loop_;
 	}
-	// FIXME:The SockAddress addr should be set into TcpConnnection.
+	SockAddress local_addr = getLocalAddr(fd);
 	std::shared_ptr<TcpConnection> conn(
-	        new TcpConnection(conn_loop, fd));
+	        new TcpConnection(conn_loop, fd, local_addr, addr));
 	conn->setConnectCallback(connect_cb_);
 	conn->setMessageCallback(message_cb_);
 	conn->setWriteCompleteCallback(write_cb_);

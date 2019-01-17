@@ -29,7 +29,7 @@ public:
 	Socket(const Socket&) = delete;
 	Socket& operator=(const Socket&) = delete;
 
-	void bind(SockAddress& addr); // bindOrDie;
+	void bind(const SockAddress& addr); // bindOrDie;
 	void listen(); // listenOrDie;
 	int accept(SockAddress* addr);
 	void shutdownWrite() { ::shutdown(fd_, SHUT_WR); }

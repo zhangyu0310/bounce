@@ -19,22 +19,33 @@
 
 namespace bounce {
 
-// only IPv4. TODO: support IPv6
 class SockAddress {
 public:
-	SockAddress() = default; // Only for Acceptor
-	SockAddress(const std::string& ip, uint16_t port);
+	explicit SockAddress(uint16_t port = 0,
+			bool loopback = false,
+			bool ipv6 = false);
+	SockAddress(const std::string& ip, uint16_t port, bool ipv6 = false);
 	~SockAddress() = default;
 	SockAddress(const SockAddress&) = default;
 	SockAddress& operator=(const SockAddress&) = default;
 
-	sockaddr* inetAddr() { return (sockaddr*)&addr_; }
-	const sockaddr* constInetAddr() const { return (sockaddr*)&addr_; }
-	socklen_t size() const { return sizeof(addr_); }
+	sockaddr* inetAddr() { return (sockaddr*)&addr6_; }
+	const sockaddr* constInetAddr() const { return (sockaddr*)&addr6_; }
+	socklen_t size() const { return sizeof(addr6_); }
+
+	sa_family_t family() { return addr6_.sin6_family; }
+	std::string ip();
+	uint16_t port() { return ntohs(addr6_.sin6_port); }
+
+	void setScopeId(uint32_t scope_id);
 
 private:
 	// IPv4 address struct.
-	struct sockaddr_in addr_;
+
+	union {
+		struct sockaddr_in addr_;
+		struct sockaddr_in6 addr6_;
+	};
 };
 
 } // namespace bounce

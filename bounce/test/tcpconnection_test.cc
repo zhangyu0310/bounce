@@ -48,7 +48,9 @@ void acceptor_cb(time_t time) {
 		std::cout << ::strerror(errno) << std::endl;
 		return;
 	}
-	std::shared_ptr<TcpConnection> conn(new TcpConnection(&loop, new_fd));
+	SockAddress local(9281, true);
+	SockAddress peer("", new_fd, false);
+	std::shared_ptr<TcpConnection> conn(new TcpConnection(&loop, new_fd, local, peer));
 	conn->setMessageCallback(read_cb);
 	conn->setConnectCallback(conn_cb);
 	conn->connectComplete();

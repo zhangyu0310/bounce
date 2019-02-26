@@ -15,5 +15,5 @@ add_subdirectory(test)
 install(TARGETS bounce
         ARCHIVE DESTINATION lib/bounce)
 install(DIRECTORY ${BOUNCE_SRC}
-        DESTINATION include/bounce
+        DESTINATION include
         FILES_MATCHING PATTERN "*.h")

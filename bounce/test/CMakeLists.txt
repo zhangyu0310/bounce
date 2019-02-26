@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 project(bounce_tests)
 
-set(CMAKE_CXX_STANDARD 11)
+include(../../bounce_config.cmake)
 
 add_executable(buffer_test
         buffer_test.cc)

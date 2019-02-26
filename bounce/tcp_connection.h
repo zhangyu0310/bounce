@@ -21,6 +21,7 @@
 #include <bounce/buffer.h>
 #include <bounce/channel.h>
 #include <bounce/socket.h>
+#include <bounce/sockaddr.h>
 #include <bounce/logger.h>
 
 namespace bounce {

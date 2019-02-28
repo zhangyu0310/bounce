@@ -29,8 +29,6 @@ void bounce::TcpServer::start() {
 				std::bind(thread_init_cb_, std::placeholders::_1));
 	}
 	thread_pool_->start();
-	//loop_->doTaskInThread(
-	//		std::bind(&Acceptor::startListen, &acceptor_));
 	acceptor_.startListen();
 	started_ = true;
 }

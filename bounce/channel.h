@@ -42,8 +42,6 @@ public:
 	short int events() const { return events_; }
 	short int revents() const { return revents_; }
 
-	// Be replaced by enableXX & disableXX.
-	//void setEvents(short int events) { events_ = events; }
 	void setRevents(short int revents) { revents_ = revents; }
 	void setReadCallback(const ReadEventCallback& cb) { read_cb_ = cb; }
 	void setWriteCallback(const EventCallback& cb) { write_cb_ = cb; }

@@ -22,13 +22,13 @@ std::time_t bounce::PollPoller::poll(int timeout,
 	if (r_num > 0) {
 		// Fill channels -- revents and active_channels.
 		int count = 0;
-		for (auto it = pollfds_.begin(); it != pollfds_.end(); ++it) {
+		for (auto& it : pollfds_) {
 			if (count >= r_num) {
 				break;
 			}
-			if (it->revents > 0) {
-				auto m_it = channels_.find(it->fd);
-				(m_it->second)->setRevents(it->revents);
+			if (it.revents > 0) {
+				auto m_it = channels_.find(it.fd);
+				(m_it->second)->setRevents(it.revents);
 				active_channels->push_back(m_it->second);
 			}
 		}

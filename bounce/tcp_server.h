@@ -29,8 +29,6 @@ public:
 	typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 	typedef std::function<void(EventLoop*)> ThreadInitCallback;
 	typedef std::function<void(const TcpConnectionPtr&)> ConnectionCallback;
-	// Close call back is no use, Connection close should call connection back.
-	//typedef std::function<void(const TcpConnectionPtr&)> CloseCallback;
 	typedef std::function<void(const TcpConnectionPtr&)> WriteCompleteCallback;
 	typedef std::function<void(const TcpConnectionPtr&)> ErrorCallback;
 	typedef std::function<void(const TcpConnectionPtr&, Buffer*, time_t)> MessageCallback;

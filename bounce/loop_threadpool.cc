@@ -39,9 +39,7 @@ void bounce::LoopThreadPool::threadLoop() {
 
 void bounce::LoopThreadPool::start() {
     started_ = true;
-    //thread_pool_ = std::unique_ptr<ThreadPool>(new ThreadPool(thread_num_));
     for (uint32_t i = 0; i < thread_num_; ++i) {
-        //thread_pool_->enqueue(std::bind(&LoopThreadPool::threadLoop, this));
         EventLoopThreadPtr loop_thread(
                new EventLoopThread(std::bind(&LoopThreadPool::threadLoop, this)));
         loop_thread->run();

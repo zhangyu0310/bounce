@@ -31,12 +31,15 @@ public:
         pthread_once(&once_, logSysInit);
         return spdlog::details::registry::instance().get(name);
     }
+    static void setLogPath(char* path) {
+        log_path_ = path;
+    }
+    static std::string log_path_;
 private:
     Logger() = default;
     static pthread_once_t once_;
 };
 
-extern std::string log_path;
 extern enum spdlog::level::level_enum log_level;
 extern enum spdlog::level::level_enum log_flush_level;
 

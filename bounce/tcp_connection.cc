@@ -141,7 +141,6 @@ void bounce::TcpConnection::sendInLoop(const std::string& message) {
     }
 
     if (!send_error && send_bytes > 0) {
-        //const char* str = message.c_str();
         const char* str = message.data();
         output_buffer_.append(str + wrote_bytes, send_bytes);
         if (!channel_->isWriting()) {

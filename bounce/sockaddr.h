@@ -40,8 +40,6 @@ public:
 	void setScopeId(uint32_t scope_id);
 
 private:
-	// IPv4 address struct.
-
 	union {
 		struct sockaddr_in addr_;
 		struct sockaddr_in6 addr6_;

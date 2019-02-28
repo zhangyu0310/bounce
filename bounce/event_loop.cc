@@ -41,12 +41,12 @@ bounce::EventLoop::EventLoop() :
 
 void bounce::EventLoop::loop() {
 	looping_ = true;
+	thread_id_ = std::this_thread::get_id();
 	while (!stop_) {
 		active_channels_.clear();
 		time_t recv_time = poller_->poll(-1, &active_channels_);
-		for (auto it = active_channels_.begin();
-			it != active_channels_.end(); ++it) {
-			cur_channel_ = *it;
+		for (auto& it : active_channels_) {
+			cur_channel_ = it;
 			cur_channel_->handleChannel(recv_time);
 		}
 		cur_channel_ = nullptr;

@@ -23,6 +23,10 @@ namespace bounce {
 
 #define FILENAME(x) strrchr(x, '/')?strrchr(x, '/')+1:x
 
+extern char* log_path_;
+extern enum spdlog::level::level_enum log_level;
+extern enum spdlog::level::level_enum log_flush_level;
+
 void logSysInit();
 
 class Logger {
@@ -34,14 +38,11 @@ public:
     static void setLogPath(char* path) {
         log_path_ = path;
     }
-    static std::string log_path_;
+
 private:
     Logger() = default;
     static pthread_once_t once_;
 };
-
-extern enum spdlog::level::level_enum log_level;
-extern enum spdlog::level::level_enum log_flush_level;
 
 } // namespace bounce
 

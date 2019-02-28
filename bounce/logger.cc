@@ -22,10 +22,10 @@ namespace bounce {
 
 void logSysInit() {
     std::string log_path;
-    if (Logger::log_path_.empty()) {
+    if (log_path_ == nullptr) {
         log_path = "./logs";
     } else {
-        log_path = Logger::log_path_;
+        log_path = log_path_;
     }
     try {
         auto console = spdlog::stdout_color_mt("bounce_console");
@@ -49,7 +49,7 @@ void logSysInit() {
 }
 
 pthread_once_t bounce::Logger::once_ = PTHREAD_ONCE_INIT;
-
+char* log_path_ = nullptr;
 enum spdlog::level::level_enum log_level = spdlog::level::trace;
 enum spdlog::level::level_enum log_flush_level = spdlog::level::err;
 

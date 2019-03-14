@@ -21,11 +21,9 @@
 namespace bounce {
 
 void logSysInit() {
-    std::string log_path;
-    if (log_path_ == nullptr) {
+    std::string log_path(g_bounce_log_path);
+    if (log_path.empty()) {
         log_path = "./logs";
-    } else {
-        log_path = log_path_;
     }
     try {
         auto console = spdlog::stdout_color_mt("bounce_console");
@@ -39,8 +37,6 @@ void logSysInit() {
         auto async_file = spdlog::basic_logger_mt<spdlog::async_factory>(
                 "bounce_file_log",
                 log_path + "/bounce_log.txt");
-        async_file->set_level(log_level);
-        async_file->flush_on(log_flush_level);
         async_file->info("Bounce library is servicing.");
     } catch (const spdlog::spdlog_ex &ex) {
         std::cout << "Log init failed: " << ex.what() << std::endl;
@@ -49,9 +45,7 @@ void logSysInit() {
 }
 
 pthread_once_t bounce::Logger::once_ = PTHREAD_ONCE_INIT;
-char* log_path_ = nullptr;
-enum spdlog::level::level_enum log_level = spdlog::level::trace;
-enum spdlog::level::level_enum log_flush_level = spdlog::level::err;
+std::string g_bounce_log_path;
 
 }
 

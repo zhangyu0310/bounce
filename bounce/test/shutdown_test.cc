@@ -53,7 +53,7 @@ void write_cb(const std::shared_ptr<TcpConnection>& conn) {
 
 int main() {
     //spdlog::get("bounce_file_log")->info("First log.");
-    bounce::log_level = spdlog::level::err;
+    Logger::get("bounce_file_log")->set_level(spdlog::level::err);
     std::cout << "pthread_id: " << std::this_thread::get_id() << std::endl;
     Logger::get("bounce_file_log")->info(
             "file:{}, line:{}, function:{}  I am in main",

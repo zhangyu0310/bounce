@@ -55,6 +55,7 @@ public:
 	ConnectState state() const { return state_; }
 	SockAddress local_addr() { return local_addr_; }
 	SockAddress peer_addr() { return peer_addr_; }
+	bool isConnected() { return state_ == connected; }
 
 	void setConnectCallback(const ConnectionCallback& cb) {
 		connect_cb_ = cb;

@@ -14,6 +14,8 @@
 
 #include <pthread.h>
 
+#include <string>
+
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
@@ -23,9 +25,7 @@ namespace bounce {
 
 #define FILENAME(x) strrchr(x, '/')?strrchr(x, '/')+1:x
 
-extern char* log_path_;
-extern enum spdlog::level::level_enum log_level;
-extern enum spdlog::level::level_enum log_flush_level;
+extern std::string g_bounce_log_path;
 
 void logSysInit();
 
@@ -35,8 +35,10 @@ public:
         pthread_once(&once_, logSysInit);
         return spdlog::details::registry::instance().get(name);
     }
-    static void setLogPath(char* path) {
-        log_path_ = path;
+    // This is just set the dir of bounce log.
+    // It only effective before Logger::get been call(first time).
+    static void setBounceLogPath(const std::string& path) {
+        g_bounce_log_path = path;
     }
 
 private:

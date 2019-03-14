@@ -1,6 +1,6 @@
 /*
-* Ö÷Òª²âÊÔTcpServer¹¦ÄÜÊÇ·ñÕý³£
-* ½¨Á¢Á¬½Ó£¬´´½¨TcpServer¶ÔÏó£¬ÓÐÏûÏ¢µ½À´£¬´¥·¢»Øµ÷¼´¿É
+* ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½TcpServerï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½
+* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó£ï¿½ï¿½ï¿½ï¿½ï¿½TcpServerï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½ï¿½ï¿½ï¿½ï¿½
 */
 
 #include <assert.h>
@@ -49,7 +49,8 @@ void write_cb(const std::shared_ptr<TcpConnection>& conn) {
 
 int main() {
     //spdlog::get("bounce_file_log")->info("First log.");
-    bounce::log_level = spdlog::level::err;
+    Logger::setBounceLogPath(".");
+	Logger::get("bounce_file_log")->set_level(spdlog::level::err);
     std::cout << "pthread_id: " << std::this_thread::get_id() << std::endl;
     Logger::get("bounce_file_log")->info(
             "file:{}, line:{}, function:{}  I am in main",

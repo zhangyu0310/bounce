@@ -251,10 +251,22 @@ void bounce::TcpConnection::handleClose() {
 }
 
 void bounce::TcpConnection::handleError() {
+    int err = getSocketError(channel_->fd());
     Logger::get("bounce_file_log")->error(
             "file:{}, line:{}, function:{}  errno is {}",
-            FILENAME(__FILE__), __LINE__, __FUNCTION__, errno);
+            FILENAME(__FILE__), __LINE__, __FUNCTION__, err);
     if (error_cb_ != nullptr) {
         error_cb_(shared_from_this());
+    }
+}
+
+int bounce::TcpConnection::getSocketError(int sockfd) {
+    int optval;
+    auto optlen = static_cast<socklen_t>(sizeof optval);
+
+    if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0) {
+        return errno;
+    } else {
+        return optval;
     }
 }

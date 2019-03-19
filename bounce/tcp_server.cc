@@ -10,6 +10,8 @@
 
 #include <bounce/tcp_server.h>
 
+#include <signal.h>
+
 bounce::TcpServer::TcpServer(EventLoop* loop,
 	const std::string& ip,
 	uint16_t port,
@@ -19,6 +21,7 @@ bounce::TcpServer::TcpServer(EventLoop* loop,
 	acceptor_(loop, SockAddress(ip, port)),
 	thread_pool_(new LoopThreadPool(loop_, thread_num))
 {
+	::signal(SIGPIPE, SIG_IGN);
 	acceptor_.setAcceptCallback(std::bind(&TcpServer::newConnection,
 		this, std::placeholders::_1, std::placeholders::_2));
 }

@@ -1,6 +1,5 @@
 # Compile options
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "-O2 -Wall")
 
 # Project Files path
 set(PROJECT_PATH "${CMAKE_SOURCE_DIR}")
@@ -13,5 +12,4 @@ include_directories(
         ${PROJECT_PATH}
         ${BOUNCE_SRC}
         ${BOUNCE_TEST}
-        ${BOUNCE_DEP}
-)
+        ${BOUNCE_DEP} )

@@ -34,11 +34,14 @@ bounce::SockAddress::SockAddress(
 	addr6_.sin6_port = htons(port);
 	if (ipv6) {
 		addr6_.sin6_family = AF_INET6;
-		inet_pton(AF_INET6, ip.c_str(), &addr6_.sin6_addr);
 	} else {
 		addr_.sin_family = AF_INET;
-		inet_pton(AF_INET, ip.c_str(), &addr_.sin_addr);
 	}
+    if (!ip.empty()) {
+        inet_pton(addr_.sin_family, ip.c_str(), &addr_.sin_addr);
+    } else {
+        addr_.sin_family = INADDR_ANY;
+    }
 }
 
 std::string bounce::SockAddress::ip() {

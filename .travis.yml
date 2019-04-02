@@ -1,8 +1,11 @@
 language: c++
+sudo: required
 compiler:
   - gcc
 os:
   - linux
-install: true
+install:
+  - sudo apt-get install libgtest-dev
+  - sudo apt-get install googletest
 script:
   - ./build.sh

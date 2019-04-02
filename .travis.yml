@@ -1,0 +1,8 @@
+language: c++
+compiler:
+  - gcc
+os:
+  - linux
+install: true
+script:
+  - ./build.sh

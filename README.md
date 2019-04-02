@@ -9,11 +9,12 @@
 ### 使用方法介绍
 
 在bounce项目的上级目录创建build文件夹 <br>
-mkdir build <br>
-cd build <br>
-cmake -DCMAKE_INSTALL_PREFIX={path} ../bounce <br>
-sudo make install <br>
-
+```shell
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX={path} ../bounce
+sudo make install
+```
 #### 实现简单的echo服务：
 
 ```cpp
@@ -106,7 +107,7 @@ int main() {
 不在列表中的文件，不建议直接引用。
 
 |头文件|说明|
-|---|---|
+|:---|:---|
 |buffer.h|消息回调、send函数，使用的Buffer类|
 |connector.h|连接器，用于发起连接，类似于客户端|
 |event_loop.h*|事件循环类，是整个网络库的基础|

@@ -1,1 +1,4 @@
+title: Bounce
+description: A C++11 network library in Linux.
+show_downloads: true
 theme: jekyll-theme-cayman

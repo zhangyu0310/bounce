@@ -6,6 +6,5 @@ os:
   - linux
 install:
   - sudo apt-get install libgtest-dev
-  - sudo apt-get install googletest
 script:
   - ./build.sh

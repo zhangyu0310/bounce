@@ -3,13 +3,23 @@ project(bounce_tests)
 
 include(../../bounce_config.cmake)
 
-add_executable(buffer_test
-        buffer_test.cc)
-target_link_libraries(buffer_test bounce)
-target_link_libraries(buffer_test gtest_main)
-target_link_libraries(buffer_test gtest)
-target_link_libraries(buffer_test gtest_main)
-target_link_libraries(buffer_test pthread)
+find_library(GTEST
+        NAMES libgtest.a)
+find_library(GTEST_MAIN
+        NAMES libgtest_main.a)
+
+message("-- ${GTEST}")
+message("-- ${GTEST_MAIN}")
+
+if(GTEST AND GTEST_MAIN)
+    add_executable(buffer_test
+            buffer_test.cc)
+    target_link_libraries(buffer_test bounce)
+    target_link_libraries(buffer_test gtest_main)
+    target_link_libraries(buffer_test gtest)
+    target_link_libraries(buffer_test gtest_main)
+    target_link_libraries(buffer_test pthread)
+endif()
 
 add_executable(poller_test poller_test.cc)
 target_link_libraries(poller_test bounce)
@@ -39,9 +49,11 @@ add_executable(connector_test connector_test.cc)
 target_link_libraries(connector_test bounce)
 target_link_libraries(connector_test pthread)
 
-add_executable(sockaddr_test sockaddr_test.cc)
-target_link_libraries(sockaddr_test bounce)
-target_link_libraries(sockaddr_test gtest_main)
-target_link_libraries(sockaddr_test gtest)
-target_link_libraries(sockaddr_test gtest_main)
-target_link_libraries(sockaddr_test pthread)
+if (GTEST AND GTEST_MAIN)
+    add_executable(sockaddr_test sockaddr_test.cc)
+    target_link_libraries(sockaddr_test bounce)
+    target_link_libraries(sockaddr_test gtest_main)
+    target_link_libraries(sockaddr_test gtest)
+    target_link_libraries(sockaddr_test gtest_main)
+    target_link_libraries(sockaddr_test pthread)
+endif ()

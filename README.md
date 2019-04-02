@@ -2,6 +2,10 @@
 
 **解决C++ Linux网络编程中的偶发问题，通过简单易用的接口，简化网络编程。**
 
+[![Build Status](https://travis-ci.com/zhangyu0310/bounce.svg?branch=master)](https://travis-ci.com/zhangyu0310/bounce)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/zhangyu0310/bounce/blob/master/LICENSE)
+[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
+
 ### 使用方法介绍
 
 在bounce项目的上级目录创建build文件夹 <br>

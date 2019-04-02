@@ -106,16 +106,17 @@ int main() {
 带有\*的头文件，说明必须引用（实现网络基本功能）。
 不在列表中的文件，不建议直接引用。
 
-|头文件|说明|
-|:---|:---|
-|buffer.h|消息回调、send函数，使用的Buffer类|
-|connector.h|连接器，用于发起连接，类似于客户端|
-|event_loop.h*|事件循环类，是整个网络库的基础|
-|logger.h|单例类的用法，需要打印日志可以使用|
-|sockaddr.h|封装了Socket地址信息（支持IPv6）|
-|tcp_connection.h*|封装了一条Tcp连接|
-|tcp_server.h*|用于启动整个网络服务，自定义回调|
-|timer.h|使用定时功能时需要引用|
+| 头文件 | 说明 |
+|:------------------|:---------------------------------|
+| buffer.h          | 消息回调、send函数，使用的Buffer类 |
+| connector.h       | 连接器，用于发起连接，类似于客户端  |
+| event_loop.h*     | 事件循环类，是整个网络库的基础      |
+| logger.h          | 单例类的用法，需要打印日志可以使用  |
+| sockaddr.h        | 封装了Socket地址信息（支持IPv6）   |
+| tcp_connection.h* | 封装了一条Tcp连接                 |
+| tcp_server.h*     | 用于启动整个网络服务，自定义回调    |
+| timer.h           | 使用定时功能时需要引用             |
+
 > 注：单独使用 ```EventLoop``` 和 ```timer```，
 可以直接实现定时器的功能。非常轻松方便。定时接口在EventLoop类中。
 

@@ -1,5 +1,5 @@
-// BufferÀàµÄgtestÎÄ¼þ
-// ²âÊÔBufferÀàµÄ»ù±¾¹¦ÄÜ
+// Bufferï¿½ï¿½ï¿½gtestï¿½Ä¼ï¿½
+// ï¿½ï¿½ï¿½ï¿½Bufferï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 #include <bounce/buffer.h>
 
@@ -28,7 +28,7 @@ TEST(Buffer, readString)
 	EXPECT_STREQ(str2.c_str(), "poppinzhang");
 }*/
 
-// ÓÃÓÚÉú³ÉËæ»ú×Ö·û´®
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½
 class RandomString {
 public:
 	RandomString(int num, int len) : num_(num), len_(len) 
@@ -91,4 +91,15 @@ TEST_P(RandomStringTest, appendAndRead)
 	EXPECT_EQ(buffer2.readableBytes(), str.size());
 	std::string str2 = buffer2.readAllAsString();
 	EXPECT_STREQ(str2.c_str(), str.c_str());
+}
+
+TEST(Buffer, append)
+{
+    bounce::Buffer buffer1;
+    buffer1.writeInt8(11);
+    buffer1.writeInt16(22);
+    buffer1.writeInt32(33);
+	EXPECT_EQ(buffer1.readInt8(), 11);
+	EXPECT_EQ(buffer1.readInt16(), 22);
+	EXPECT_EQ(buffer1.readInt32(), 33);
 }

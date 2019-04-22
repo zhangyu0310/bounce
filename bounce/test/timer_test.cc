@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <string.h>
 
+#include <atomic>
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -20,13 +21,27 @@
 #include <bounce/tcp_server.h>
 
 using namespace bounce;
+using TcpConnectionPtr = TcpServer::TcpConnectionPtr;
+
+std::atomic<int> count;
+std::vector<EventLoop::TimerPtr> timers;
 
 void time_to_send(const std::shared_ptr<TcpConnection>& conn) {
     spdlog::info("Hello! Timer");
     conn->send("Hello! Timer!\n");
+    std::chrono::milliseconds milli_sec(150);
+    if (count++ < 100) {
+        conn->getLoop()->runAfter(
+                milli_sec,
+                std::bind(time_to_send, conn));
+    }
 }
 
-std::vector<EventLoop::TimerPtr> timers;
+void time_to_send_every(const TcpConnectionPtr& conn) {
+    spdlog::info("Timer Every");
+    conn->send("Timer Every!");
+    conn->getLoop()->deleteTimer(timers[0]);
+}
 
 void conn_cb(const std::shared_ptr<TcpConnection>& conn) {
     EventLoop* loop = conn->getLoop();
@@ -36,20 +51,19 @@ void conn_cb(const std::shared_ptr<TcpConnection>& conn) {
         std::cout << "This thread_id is ";
         std::cout << std::this_thread::get_id() << std::endl;
         std::cout << std::endl;
-        std::chrono::microseconds micro_sec(1000);
-        /*auto count = std::chrono::duration_cast<
-                EventLoop::NanoSeconds>(micro_sec).count();
-        std::cout << "The count is " << count << std::endl;*/
+        std::chrono::microseconds micro_sec(1000000);
+        std::chrono::milliseconds milli_sec(150);
+
         auto timer = loop->runEvery(
-                std::chrono::duration_cast<EventLoop::NanoSeconds>(micro_sec),
+                micro_sec,
+                std::bind(time_to_send_every, conn));
+        loop->runAfter(
+                milli_sec,
                 std::bind(time_to_send, conn));
-        /*auto timer = loop->runAfter(
-                std::chrono::duration_cast<EventLoop::NanoSeconds>(sec),
-                std::bind(time_to_send, conn));*/
-        /*auto timer = loop->runAt(
-                std::chrono::system_clock::now() +
-                std::chrono::duration_cast<EventLoop::NanoSeconds>(sec),
-                std::bind(time_to_send, conn));*/
+        loop->runAt(
+                std::chrono::system_clock::now() + milli_sec,
+                std::bind(time_to_send, conn));
+        loop->runAfter(1000000, std::bind(time_to_send, conn));
         timers.push_back(timer);
     } else if (conn->state() == TcpConnection::disconnected) {
         std:: cout << "Connection is over..." << std::endl;

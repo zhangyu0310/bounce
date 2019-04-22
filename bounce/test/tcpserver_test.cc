@@ -57,6 +57,9 @@ int main() {
 			FILENAME(__FILE__), __LINE__, __FUNCTION__);
 	EventLoop loop;
 	TcpServer server(&loop, "127.0.0.1", 9281, 3);
+	server.setThreadNumber(2);
+	auto num = server.getThreadNumber();
+	spdlog::info("Thread number: {}", num);
 	server.setConnectionCallback(conn_cb);
 	server.setMessageCallback(read_cb);
 	server.setWriteCompleteCallback(write_cb);

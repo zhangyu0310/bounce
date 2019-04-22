@@ -11,6 +11,7 @@
 #include <bounce/event_loop.h>
 #include <bounce/timer_queue.h>
 
+#include <algorithm>
 #include <utility>
 #include <vector>
 
@@ -39,7 +40,7 @@ void bounce::TimerQueue::addTimerInLoop(
 
 void bounce::TimerQueue::deleteTimer(
         const bounce::TimerQueue::TimerPtr& timer) {
-    loop_->doTaskInThread(std::bind(
+    loop_->queueTaskInThread(std::bind(
             &TimerQueue::deleteTimerInLoop, this, timer));
 }
 
@@ -69,21 +70,26 @@ void bounce::TimerQueue::handleRead(time_t) {
     // get the first iterator bigger than now.
     auto now = std::chrono::system_clock::now();
     auto upper_it = timer_map_once_.upper_bound(now);
-    for (auto it = timer_map_once_.begin(); it != upper_it; ++it) {
-        it->second->execCallback();
-    }
+    // Timer will be deleted automatically, when handleRead finished.
+    std::vector<std::pair<TimePoint, TimerPtr>> to_delete;
+    std::move(timer_map_once_.begin(), upper_it, std::back_inserter(to_delete));
     timer_map_once_.erase(timer_map_once_.begin(), upper_it);
+    for (auto& it : to_delete) {
+        it.second->execCallback();
+    }
+
     // deal the repeat timer.
     upper_it = timer_map_repeat_.upper_bound(now);
     std::vector<TimerPtr> to_update;
     for (auto it = timer_map_repeat_.begin(); it != upper_it; ++it) {
         it->second->execCallback();
+        // FIXME: If execCallback() call deleteTimer. Boom!
         to_update.push_back(it->second);
     }
     timer_map_repeat_.erase(timer_map_repeat_.begin(), upper_it);
-    for (auto it : to_update) {
+    for (auto& it : to_update) {
         auto new_time = it->timerUpdate();
-        timer_map_repeat_.insert(std::make_pair(new_time, it));
+        timer_map_repeat_.emplace(std::make_pair(new_time, it));
     }
     resetTimerfd();
 }
@@ -101,16 +107,16 @@ void bounce::TimerQueue::resetTimerfd() {
             once_expiration < repeat_expiration ?
             once_expiration : repeat_expiration;
     if (min_expiration_ != TimePoint::max()) {
-        // wake up loop by timerfd_settime()
+        auto diff = min_expiration_ - std::chrono::system_clock::now();
+        if (diff < std::chrono::nanoseconds::zero()) {
+            diff = NanoSeconds(10);
+        }
         struct itimerspec new_value{timespec{0, 0}, timespec{0, 0}};
         struct itimerspec old_value{timespec{0, 0}, timespec{0, 0}};
-        auto diff = min_expiration_ - std::chrono::system_clock::now();
-        if (diff < NanoSeconds(10000000)) { // 0.01ms
-            diff = NanoSeconds(10000000);
-        }
         new_value.it_value.tv_sec = diff.count() / NanoSecondsPerSecond;
         new_value.it_value.tv_nsec = diff.count() % NanoSecondsPerSecond;
         // old_value can be nullptr, we don't care.
+        // wake up loop by timerfd_settime()
         int ret = ::timerfd_settime(timer_fd_, 0, &new_value, &old_value);
         if (ret != 0) {
             Logger::get("bounce_file_log")->error(

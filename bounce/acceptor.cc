@@ -29,6 +29,7 @@ void bounce::Acceptor::startListen() {
 }
 
 void bounce::Acceptor::handleAccept(time_t time) {
+    (void)time;
 	SockAddress new_addr;
 	int new_fd = listen_sock_->accept(&new_addr);
 	// accept_cb_ is from TcpServer.newConnection(), so it isn't null.

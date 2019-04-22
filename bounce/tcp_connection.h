@@ -97,7 +97,7 @@ private:
 	void handleWrite();
 	void handleClose();
 	void handleError();
-	int getSocketError(int sockfd);
+	static int getSocketError(int sockfd);
 
 	std::atomic<ConnectState> state_;
 	EventLoop* loop_;

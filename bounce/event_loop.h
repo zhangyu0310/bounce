@@ -52,11 +52,11 @@ public:
 	void updateChannel(Channel* channel);
 	void removeChannel(Channel* channel);
 
-	TimerPtr runAt(const TimePoint& expiration, TimeOutCallback&& cb);
-	TimerPtr runAfter(const NanoSeconds& delay, TimeOutCallback&& cb);
-	TimerPtr runAfter(long delay_ns, TimeOutCallback&& cb);
+	void runAt(const TimePoint& expiration, TimeOutCallback&& cb);
+	void runAfter(const NanoSeconds& delay, TimeOutCallback&& cb);
+	void runAfter(long delay_ns, TimeOutCallback&& cb);
 	TimerPtr runEvery(const NanoSeconds& interval, TimeOutCallback&& cb);
-	void deleteTimer(TimerPtr timer_ptr);
+	void deleteTimer(const TimerPtr& timer_ptr); // Just for runEvery.
 
 	void doTaskInThread(Functor& func);
 	void queueTaskInThread(Functor& func);

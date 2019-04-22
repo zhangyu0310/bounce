@@ -24,6 +24,7 @@ bounce::EventLoop::EventLoop() :
 	doing_the_tasks_(false),
 	thread_id_(std::this_thread::get_id()),
 	poller_(new PollPoller(this)),
+	cur_channel_(nullptr),
 	timer_queue_(new TimerQueue(this)),
 	weakup_fd_(::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC)),
 	weak_up_channel_(new Channel(this, weakup_fd_)) {
@@ -54,23 +55,22 @@ void bounce::EventLoop::loop() {
 	}
 }
 
-bounce::EventLoop::TimerPtr bounce::EventLoop::runAt(
+void bounce::EventLoop::runAt(
 		const bounce::EventLoop::TimePoint& expiration,
 		bounce::EventLoop::TimeOutCallback&& cb) {
-	return timer_queue_->addTimer(expiration,
-			NanoSeconds::zero(), std::move(cb));
+	timer_queue_->addTimer(expiration, NanoSeconds::zero(), std::move(cb));
 }
 
-bounce::EventLoop::TimerPtr bounce::EventLoop::runAfter(
+void bounce::EventLoop::runAfter(
 		const bounce::EventLoop::NanoSeconds& delay,
 		bounce::EventLoop::TimeOutCallback&& cb) {
-	return timer_queue_->addTimer(
+	timer_queue_->addTimer(
 			SystemClock::now() + delay, NanoSeconds::zero(), std::move(cb));
 }
 
-bounce::EventLoop::TimerPtr bounce::EventLoop::runAfter(
+void bounce::EventLoop::runAfter(
 		long delay_ns, bounce::EventLoop::TimeOutCallback &&cb) {
-	return timer_queue_->addTimer(
+	timer_queue_->addTimer(
 			SystemClock::now() + NanoSeconds(delay_ns),
 			NanoSeconds::zero(), std::move(cb));
 }
@@ -82,7 +82,7 @@ bounce::EventLoop::TimerPtr bounce::EventLoop::runEvery(
 			SystemClock::now() + interval, interval, std::move(cb));
 }
 
-void bounce::EventLoop::deleteTimer(bounce::EventLoop::TimerPtr timer_ptr) {
+void bounce::EventLoop::deleteTimer(const bounce::EventLoop::TimerPtr& timer_ptr) {
 	timer_queue_->deleteTimer(timer_ptr);
 }
 
